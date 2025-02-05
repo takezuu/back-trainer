@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PostgreSQL REST API QA Trainer</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #1e1e1e; color: #ffffff; }
+        textarea, input, select, button { width: 100%; margin-bottom: 10px; padding: 5px; background: #2e2e2e; color: #ffffff; border: 1px solid #555; }
+        button { cursor: pointer; }
+        pre { background: #2e2e2e; padding: 10px; color: #ffffff; border: 1px solid #555; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #2e2e2e; color: #ffffff; }
+        th, td { border: 1px solid #555; padding: 8px; text-align: left; }
+        .method-description { font-size: 0.9em; color: #bbbbbb; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>PostgreSQL REST API QA Trainer</h1>
+    <label for="method">HTTP Method:</label>
+    <select id="method" onchange="updateDescription()">
+        <option value="GET">GET</option>
+        <option value="POST">POST</option>
+        <option value="PUT">PUT</option>
+        <option value="DELETE">DELETE</option>
+    </select>
+    <p id="method-description" class="method-description">GET: Получение данных из PostgreSQL.</p>
+    
+    <label for="endpoint">API Endpoint:</label>
+    <input id="endpoint" type="text" value="http://localhost:8000/users">
+    <label for="body">Request Body (JSON):</label>
+    <textarea id="body">{"name": "John Doe", "email": "john@example.com"}</textarea>
+    <button onclick="sendRequest()">Send Request</button>
+    
+    <h2>Response:</h2>
+    <pre id="response"></pre>
+    <h2>Table Output:</h2>
+    <div id="table-output"></div>
+    
+    <h2>Example Requests:</h2>
+    <pre>{
+    "GET": "http://localhost:8000/users",
+    "POST": { "url": "http://localhost:8000/users", "body": { "name": "John Doe", "email": "john@example.com" } },
+    "PUT": { "url": "http://localhost:8000/users/1", "body": { "name": "Jane Doe" } },
+    "DELETE": "http://localhost:8000/users/1"
+}</pre>
+
+    <script>
+        function updateDescription() {
+            const descriptions = {
+                "GET": "GET: Получение данных из PostgreSQL.",
+                "POST": "POST: Создание новой записи в PostgreSQL.",
+                "PUT": "PUT: Обновление существующей записи в PostgreSQL.",
+                "DELETE": "DELETE: Удаление записи из PostgreSQL."
+            };
+            document.getElementById('method-description').textContent = descriptions[document.getElementById('method').value];
+        }
+
+        async function sendRequest() {
+            const method = document.getElementById('method').value;
+            const endpoint = document.getElementById('endpoint').value;
+            const body = document.getElementById('body').value;
+            const responseElement = document.getElementById('response');
+            const tableOutput = document.getElementById('table-output');
+            tableOutput.innerHTML = '';
+            
+            let options = { method, headers: { 'Content-Type': 'application/json' } };
+            if (method !== 'GET' && method !== 'DELETE') {
+                options.body = body;
+            }
+            
+            try {
+                const response = await fetch(endpoint, options);
+                const result = await response.json();
+                responseElement.textContent = JSON.stringify(result, null, 2);
+                
+                if (Array.isArray(result)) {
+                    let table = '<table><tr>';
+                    Object.keys(result[0]).forEach(key => table += `<th>${key}</th>`);
+                    table += '</tr>';
+                    result.forEach(row => {
+                        table += '<tr>';
+                        Object.values(row).forEach(value => table += `<td>${value}</td>`);
+                        table += '</tr>';
+                    });
+                    table += '</table>';
+                    tableOutput.innerHTML = table;
+                }
+            } catch (error) {
+                responseElement.textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>
