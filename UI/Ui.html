@@ -23,7 +23,7 @@
         <option value="PUT">PUT</option>
         <option value="DELETE">DELETE</option>
     </select>
-    <p id="method-description" class="method-description">GET: Получение данных из PostgreSQL.</p>
+    <p id="method-description" class="method-description">GET: Получение списка пользователей из PostgreSQL.</p>
     
     <label for="endpoint">API Endpoint:</label>
     <input id="endpoint" type="text" value="http://localhost:8000/users">
@@ -47,10 +47,10 @@
     <script>
         function updateDescription() {
             const descriptions = {
-                "GET": "GET: Получение данных из PostgreSQL.",
-                "POST": "POST: Создание новой записи в PostgreSQL.",
-                "PUT": "PUT: Обновление существующей записи в PostgreSQL.",
-                "DELETE": "DELETE: Удаление записи из PostgreSQL."
+                "GET": "GET: Получение списка пользователей из PostgreSQL.",
+                "POST": "POST: Создание нового пользователя.",
+                "PUT": "PUT: Обновление данных пользователя.",
+                "DELETE": "DELETE: Удаление пользователя."
             };
             document.getElementById('method-description').textContent = descriptions[document.getElementById('method').value];
         }
@@ -63,7 +63,12 @@
             const tableOutput = document.getElementById('table-output');
             tableOutput.innerHTML = '';
             
-            let options = { method, headers: { 'Content-Type': 'application/json' } };
+            let options = {
+                method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
             if (method !== 'GET' && method !== 'DELETE') {
                 options.body = body;
             }
@@ -73,7 +78,7 @@
                 const result = await response.json();
                 responseElement.textContent = JSON.stringify(result, null, 2);
                 
-                if (Array.isArray(result)) {
+                if (Array.isArray(result) && result.length > 0) {
                     let table = '<table><tr>';
                     Object.keys(result[0]).forEach(key => table += `<th>${key}</th>`);
                     table += '</tr>';
