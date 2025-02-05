@@ -4,7 +4,6 @@ FROM postgres:16-alpine
 # Устанавливаем пароль и пользователя (или задаем их через переменные среды)
 ENV POSTGRES_USER=postgres
 ENV POSTGRES_PASSWORD=1Qwerty
-ENV POSTGRES_DB=mydatabase
 
 # Копируем SQL-скрипты инициализации (если есть)
 COPY migrations/ /docker-entrypoint-initdb.d/
