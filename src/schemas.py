@@ -1,4 +1,5 @@
-from datetime import date
+from datetime import date, datetime
+from typing import List
 
 from pydantic import BaseModel
 
@@ -23,3 +24,25 @@ class Customer(BaseModel):
     address: str | None
     contact_phone: str | None
     date_of_birth: date | None
+
+
+class Order(BaseModel):
+    id: int
+    customer_id: int
+    items_ids: List[int]
+    order_date: datetime
+    discount: float
+    total_amount: float | None
+    status: str
+    delivery_address: str
+
+class Item(BaseModel):
+    id: int
+    product_name: str
+    description: str
+    price: float
+    quantity: int
+    category: str
+    item_color: str
+    rating: int
+
