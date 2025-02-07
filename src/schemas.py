@@ -1,10 +1,48 @@
+from datetime import date, datetime
+from typing import List
+
 from pydantic import BaseModel
 
 
 class User(BaseModel):
     id: int
+    username: str
+    email: str
+    password_hash: str
+    ip_address: str
+    created_at: date
+    last_login_time: str
+    country_code: str
+    phone: str
+
+
+class Customer(BaseModel):
+    id: int
+    user_id: int
     first_name: str
     last_name: str
-    email: str
-    city: str
-    shirt_size: str
+    address: str | None
+    contact_phone: str | None
+    date_of_birth: date | None
+
+
+class Order(BaseModel):
+    id: int
+    customer_id: int
+    items_ids: List[int]
+    order_date: datetime
+    discount: float
+    total_amount: float | None
+    status: str
+    delivery_address: str
+
+class Item(BaseModel):
+    id: int
+    product_name: str
+    description: str
+    price: float
+    quantity: int
+    category: str
+    item_color: str
+    rating: int
+
