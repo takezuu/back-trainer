@@ -1,0 +1,22 @@
+from typing import List, Annotated
+from fastapi import APIRouter, Depends
+from sqlmodel import Session
+from sqlmodel import select
+from src import schemas, models
+from src.database import get_session
+
+SessionDep = Annotated[Session, Depends(get_session)]
+router = APIRouter()
+
+
+@router.get("/users", tags=["users"], response_model=List[schemas.Users])
+async def read_users(session: SessionDep):
+    users = session.exec(select(models.Users)).all()
+    return users
+
+
+@router.get("/users/{user_id}", tags=["users"], response_model=schemas.Users)
+async def read_users(user_id: int, session: SessionDep):
+    statement = select(models.Users).where(models.Users.id == user_id)
+    user = session.exec(statement).first()
+    return user
