@@ -10,9 +10,33 @@ router = APIRouter()
 
 
 @router.get("/users", tags=["users"], response_model=List[schemas.Users])
-async def read_users(session: SessionDep):
-    users = session.exec(select(models.Users)).all()
-    return users
+async def read_users(session: SessionDep,
+                     username: str = None,
+                     email: str = None,
+                     country_code: str = None,
+                     q: str = None,
+                     sort: str = "id",
+                     order_by: str = "asc",
+                     page: int = 1, limit: int = 25):
+    users = models.Users
+    query = select(users)
+
+    if username:
+        query = query.where(users.username == username)
+    if email:
+        query = query.where(users.email == email)
+    if country_code:
+        query = query.where(users.country_code == country_code)
+    if q:
+        query = query.where((users.username.contains(q)) | (users.email.contains(q)))
+
+    order = getattr(users, sort)
+    if order_by == "desc":
+        order = order.desc()
+    query = query.order_by(order)
+
+    query = query.offset((page - 1) * limit).limit(limit)
+    return session.exec(query).all()
 
 
 @router.get("/users/{user_id}", tags=["users"], response_model=schemas.Users)
