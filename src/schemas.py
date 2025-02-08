@@ -1,6 +1,5 @@
 from datetime import date, datetime
 from typing import List
-
 from pydantic import BaseModel
 
 
@@ -8,7 +7,6 @@ class Users(BaseModel):
     id: int
     username: str
     email: str
-    password_hash: str
     ip_address: str
     created_at: date
     last_login_time: str
