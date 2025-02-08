@@ -1,32 +1,33 @@
-from typing import List
-
+from typing import List, Annotated
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
-
-from src.database import get_db
+from sqlmodel import Session
+from sqlmodel import select
 from src import schemas, models
+from src.database import get_session
 
+SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/users", tags=["users"], response_model=List[schemas.User])
-async def read_users(db: Session = Depends(get_db)):
-    users = db.query(models.User).all()
+@router.get("/users", tags=["users"], response_model=List[schemas.Users])
+async def read_users(session: SessionDep):
+    users = session.exec(select(models.Users)).all()
     return users
 
 
-@router.get("/customers", tags=["customers"], response_model=List[schemas.Customer])
-async def read_users(db: Session = Depends(get_db)):
-    customer = db.query(models.Customer).all()
+@router.get("/customers", tags=["customers"], response_model=List[schemas.Customers])
+async def read_users(session: SessionDep):
+    customer = session.exec(select(models.Customers)).all()
     return customer
 
 
-@router.get("/orders", tags=["orders"], response_model=List[schemas.Order])
-async def read_users(db: Session = Depends(get_db)):
-    customer = db.query(models.Order).all()
+@router.get("/orders", tags=["orders"], response_model=List[schemas.Orders])
+async def read_users(session: SessionDep):
+    customer = session.exec(select(models.Orders)).all()
     return customer
 
-@router.get("/items", tags=["items"], response_model=List[schemas.Item])
-async def read_users(db: Session = Depends(get_db)):
-    customer = db.query(models.Item).all()
+
+@router.get("/items", tags=["items"], response_model=List[schemas.Items])
+async def read_users(session: SessionDep):
+    customer = session.exec(select(models.Items)).all()
     return customer

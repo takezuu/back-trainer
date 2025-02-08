@@ -4,7 +4,7 @@ from typing import List
 from pydantic import BaseModel
 
 
-class User(BaseModel):
+class Users(BaseModel):
     id: int
     username: str
     email: str
@@ -16,7 +16,7 @@ class User(BaseModel):
     phone: str
 
 
-class Customer(BaseModel):
+class Customers(BaseModel):
     id: int
     user_id: int
     first_name: str
@@ -26,17 +26,17 @@ class Customer(BaseModel):
     date_of_birth: date | None
 
 
-class Order(BaseModel):
+class Orders(BaseModel):
     id: int
     customer_id: int
     items_ids: List[int]
     order_date: datetime
     discount: float
-    total_amount: float | None
+    total_amount: float
     status: str
     delivery_address: str
 
-class Item(BaseModel):
+class Items(BaseModel):
     id: int
     product_name: str
     description: str
