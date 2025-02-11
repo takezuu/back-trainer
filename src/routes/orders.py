@@ -12,11 +12,11 @@ router = APIRouter()
 
 @router.get("/api/orders", tags=["orders"], response_model=List[schemas.Orders])
 async def get_orders(session: SessionDep,
-                     order_date: datetime,
-                     discount: float,
-                     total_amount: float,
-                     status: str,
-                     delivery_address: str,
+                     order_date: datetime = None,
+                     discount: float = None,
+                     total_amount: float = None,
+                     status: str = None,
+                     delivery_address: str = None,
                      sort: str = "id",
                      order_by: str = "asc",
                      page: int = 1,
@@ -45,8 +45,21 @@ async def get_orders(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/orders/{order_id}", tags=["orders"], response_model=schemas.Orders)
+@router.get("/api/orders/{order_id}", tags=["orders"], response_model=schemas.OrderByid)
 async def get_order(order_id: int, session: SessionDep):
-    statement = select(models.Orders).where(models.Orders.id == order_id)
-    order = session.exec(statement).first()
+    query = select(models.Orders).where(models.Orders.id == order_id)
+    order = session.exec(query).first()
+
+    items_data = []
+    for item_id in order.items_ids:
+        items = models.Items
+        query = select(items).where(items.id == item_id)
+        item = session.exec(query).first()
+        if item:
+            item = item.model_dump()
+            items_data.append(item)
+
+    del order.items_ids
+    order = order.model_dump()
+    order["items"] = items_data
     return order

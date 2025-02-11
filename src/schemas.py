@@ -33,6 +33,16 @@ class Orders(BaseModel):
     status: str
     delivery_address: str
 
+class OrderByid(BaseModel):
+    id: int
+    customer_id: int
+    order_date: datetime
+    discount: float
+    total_amount: float
+    status: str
+    delivery_address: str
+    items: list
+
 class Items(BaseModel):
     id: int
     product_name: str
