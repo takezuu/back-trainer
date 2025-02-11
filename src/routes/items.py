@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from sqlmodel import select
 from src.schemas.items import ItemsSchema
-from src.models.items import ItemsModel
+from src.models.items import ItemsModels
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -23,7 +23,7 @@ async def get_items(session: SessionDep,
                     page: int = 1,
                     limit: int = 25
                     ):
-    items = ItemsModel
+    items = ItemsModels.Items
     query = select(items)
 
     if product_name:
@@ -50,6 +50,6 @@ async def get_items(session: SessionDep,
 
 @router.get("/api/items/{item_id}", tags=["items"], response_model=ItemsSchema)
 async def get_item(item_id: int, session: SessionDep):
-    query = select(ItemsModel).where(ItemsModel.id == item_id)
+    query = select(ItemsModels.Items).where(ItemsModels.Items.id == item_id)
     item = session.exec(query).first()
     return item

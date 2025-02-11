@@ -3,7 +3,7 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends
 from sqlmodel import Session, select
 from src.schemas.customers import CustomersSchema
-from src.models.customers import CustomersModel
+from src.models.customers import CustomersModels
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -22,7 +22,7 @@ async def get_customers(session: SessionDep,
                      page: int = 1,
                      limit: int = 25
                      ):
-    customers = CustomersModel
+    customers = CustomersModels.Customers
     query = select(customers)
 
     if first_name:
@@ -47,6 +47,6 @@ async def get_customers(session: SessionDep,
 
 @router.get("/api/customers/{customer_id}", tags=["customers"], response_model=CustomersSchema)
 async def get_customer(customer_id: int, session: SessionDep):
-    query = select(CustomersModel).where(CustomersModel.id == customer_id)
+    query = select(CustomersModels.Customers).where(CustomersModels.Customers.id == customer_id)
     customer = session.exec(query).first()
     return customer
