@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy.dialects.postgresql import JSON
 from sqlmodel import Field, SQLModel, Column
 
-class Orders(SQLModel, table=True):
+class OrdersModel(SQLModel, table=True):
     id: int = Field(primary_key=True, index=True)
     customer_id: int = Field(index=True)
     items_ids: list[int] = Field(sa_column=Column(JSON))

@@ -1,7 +1,7 @@
 from datetime import date
 from sqlmodel import Field, SQLModel
 
-class Customers(SQLModel, table=True):
+class CustomersModel(SQLModel, table=True):
     id: int = Field(primary_key=True, index=True)
     user_id: int = Field(index=True)
     first_name: str = Field(index=True)

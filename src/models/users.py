@@ -2,7 +2,7 @@ from datetime import date
 from sqlmodel import Field, SQLModel
 
 
-class Users(SQLModel, table=True):
+class UsersModel(SQLModel, table=True):
     id: int = Field(primary_key=True, index=True)
     username: str = Field(index=True)
     email: str = Field(index=True)

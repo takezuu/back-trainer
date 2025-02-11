@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 
-class Orders(BaseModel):
+class OrdersSchema(BaseModel):
     id: int
     customer_id: int
     items_ids: list[int]
@@ -12,7 +12,7 @@ class Orders(BaseModel):
     status: str
     delivery_address: str
 
-class OrderByid(BaseModel):
+class OrderByidSchema(BaseModel):
     id: int
     customer_id: int
     order_date: datetime

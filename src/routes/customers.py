@@ -1,16 +1,16 @@
 from datetime import date
 from typing import List, Annotated
 from fastapi import APIRouter, Depends
-from sqlmodel import Session
-from sqlmodel import select
-from src import schemas, models
+from sqlmodel import Session, select
+from src.schemas.customers import CustomersSchema
+from src.models.customers import CustomersModel
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/api/customers", tags=["customers"], response_model=List[schemas.Customers])
+@router.get("/api/customers", tags=["customers"], response_model=List[CustomersSchema])
 async def get_customers(session: SessionDep,
                      first_name: str = None,
                      last_name: str = None,
@@ -22,7 +22,7 @@ async def get_customers(session: SessionDep,
                      page: int = 1,
                      limit: int = 25
                      ):
-    customers = models.Customers
+    customers = CustomersModel
     query = select(customers)
 
     if first_name:
@@ -45,8 +45,8 @@ async def get_customers(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/customers/{customer_id}", tags=["customers"], response_model=schemas.Customers)
+@router.get("/api/customers/{customer_id}", tags=["customers"], response_model=CustomersSchema)
 async def get_customer(customer_id: int, session: SessionDep):
-    statement = select(models.Customers).where(models.Customers.id == customer_id)
-    customer = session.exec(statement).first()
+    query = select(CustomersModel).where(CustomersModel.id == customer_id)
+    customer = session.exec(query).first()
     return customer

@@ -2,7 +2,7 @@ from datetime import date
 from pydantic import BaseModel
 
 
-class Customers(BaseModel):
+class CustomersSchema(BaseModel):
     id: int
     user_id: int
     first_name: str

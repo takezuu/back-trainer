@@ -3,14 +3,15 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from sqlmodel import select
-from src import schemas, models
+from src.schemas.orders import OrdersSchema, OrderByidSchema
+from src.models.orders import OrdersModel
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/api/orders", tags=["orders"], response_model=List[schemas.Orders])
+@router.get("/api/orders", tags=["orders"], response_model=List[OrdersSchema])
 async def get_orders(session: SessionDep,
                      order_date: datetime = None,
                      discount: float = None,
@@ -22,7 +23,7 @@ async def get_orders(session: SessionDep,
                      page: int = 1,
                      limit: int = 25
                      ):
-    orders = models.Orders
+    orders = OrdersModel
     query = select(orders)
 
     if order_date:
@@ -45,14 +46,14 @@ async def get_orders(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/orders/{order_id}", tags=["orders"], response_model=schemas.OrderByid)
+@router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrderByidSchema)
 async def get_order(order_id: int, session: SessionDep):
-    query = select(models.Orders).where(models.Orders.id == order_id)
+    query = select(OrdersModel).where(OrdersModel.id == order_id)
     order = session.exec(query).first()
 
     items_data = []
     for item_id in order.items_ids:
-        items = models.Items
+        items = OrdersModel.Items
         query = select(items).where(items.id == item_id)
         item = session.exec(query).first()
         if item:

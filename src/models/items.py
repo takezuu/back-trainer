@@ -1,6 +1,6 @@
 from sqlmodel import Field, SQLModel
 
-class Items(SQLModel, table=True):
+class ItemsModel(SQLModel, table=True):
     id: int = Field(primary_key=True, index=True)
     product_name: str = Field(index=True)
     description: str = Field(index=True)
