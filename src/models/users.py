@@ -12,3 +12,8 @@ class UsersModels:
         last_login_time: str = Field(index=True)
         country_code: str = Field(index=True)
         phone: str = Field(index=True)
+
+    class UserAdd(SQLModel):
+        username: str
+        email: str
+        phone: str
