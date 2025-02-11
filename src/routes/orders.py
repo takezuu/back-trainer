@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Annotated
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
@@ -9,23 +10,56 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/orders", tags=["orders"], response_model=List[schemas.Orders])
-async def read_users(session: SessionDep):
-    customer = session.exec(select(models.Orders)).all()
-    return customer
+@router.get("/api/orders", tags=["orders"], response_model=List[schemas.Orders])
+async def get_orders(session: SessionDep,
+                     order_date: datetime = None,
+                     discount: float = None,
+                     total_amount: float = None,
+                     status: str = None,
+                     delivery_address: str = None,
+                     sort: str = "id",
+                     order_by: str = "asc",
+                     page: int = 1,
+                     limit: int = 25
+                     ):
+    orders = models.Orders
+    query = select(orders)
+
+    if order_date:
+        query = query.where(orders.order_date == order_date)
+    if discount:
+        query = query.where(orders.discount == discount)
+    if total_amount:
+        query = query.where(orders.total_amount == total_amount)
+    if status:
+        query = query.where(orders.status == status)
+    if delivery_address:
+        query = query.where(orders.delivery_address == delivery_address)
+
+    order = getattr(orders, sort)
+    if order_by == "desc":
+        order = order.desc()
+    query = query.order_by(order)
+
+    query = query.offset((page - 1) * limit).limit(limit)
+    return session.exec(query).all()
 
 
-@router.get("/orders/{order_id}", tags=["orders"], response_model=schemas.Orders)
-async def read_users(order_id: int, session: SessionDep):
-    statement = select(models.Orders).where(models.Orders.id == order_id)
-    order = session.exec(statement).first()
+@router.get("/api/orders/{order_id}", tags=["orders"], response_model=schemas.OrderByid)
+async def get_order(order_id: int, session: SessionDep):
+    query = select(models.Orders).where(models.Orders.id == order_id)
+    order = session.exec(query).first()
+
+    items_data = []
+    for item_id in order.items_ids:
+        items = models.Items
+        query = select(items).where(items.id == item_id)
+        item = session.exec(query).first()
+        if item:
+            item = item.model_dump()
+            items_data.append(item)
+
+    del order.items_ids
+    order = order.model_dump()
+    order["items"] = items_data
     return order
-
-# TODO: username – To search for a user by username: GET /users?username=johndoe
-# TODO: email – To filter users by email: GET /users?email=john@example.com
-# TODO: country_code – To get users from a specific country: GET /users?country_code=US
-# TODO: sort – Defines sorting by a field (e.g., created_at, username): GET /users?sort=created_at
-# TODO: order – Specifies ascending (asc) or descending (desc) order: GET /users?sort=created_at&order=desc
-# TODO: page – Defines the page number: GET /users?page=2
-# TODO: limit – Specifies the number of results per page: GET /users?limit=10
-# TODO: q – A general search query for username or email: GET /users?q=john
