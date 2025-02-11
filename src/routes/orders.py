@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Annotated
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
@@ -9,13 +10,42 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/orders", tags=["orders"], response_model=List[schemas.Orders])
-async def get_orders(session: SessionDep):
-    customer = session.exec(select(models.Orders)).all()
-    return customer
+@router.get("/api/orders", tags=["orders"], response_model=List[schemas.Orders])
+async def get_orders(session: SessionDep,
+                     order_date: datetime,
+                     discount: float,
+                     total_amount: float,
+                     status: str,
+                     delivery_address: str,
+                     sort: str = "id",
+                     order_by: str = "asc",
+                     page: int = 1,
+                     limit: int = 25
+                     ):
+    orders = models.Orders
+    query = select(orders)
+
+    if order_date:
+        query = query.where(orders.order_date == order_date)
+    if discount:
+        query = query.where(orders.discount == discount)
+    if total_amount:
+        query = query.where(orders.total_amount == total_amount)
+    if status:
+        query = query.where(orders.status == status)
+    if delivery_address:
+        query = query.where(orders.delivery_address == delivery_address)
+
+    order = getattr(orders, sort)
+    if order_by == "desc":
+        order = order.desc()
+    query = query.order_by(order)
+
+    query = query.offset((page - 1) * limit).limit(limit)
+    return session.exec(query).all()
 
 
-@router.get("/orders/{order_id}", tags=["orders"], response_model=schemas.Orders)
+@router.get("/api/orders/{order_id}", tags=["orders"], response_model=schemas.Orders)
 async def get_order(order_id: int, session: SessionDep):
     statement = select(models.Orders).where(models.Orders.id == order_id)
     order = session.exec(statement).first()
