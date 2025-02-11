@@ -2,14 +2,15 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from sqlmodel import select
-from src import schemas, models
+from src.schemas.items import ItemsSchema
+from src.models.items import ItemsModels
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/api/items", tags=["items"], response_model=List[schemas.Items])
+@router.get("/api/items", tags=["items"], response_model=List[ItemsSchema])
 async def get_items(session: SessionDep,
                     product_name: str = None,
                     price: float = None,
@@ -22,7 +23,7 @@ async def get_items(session: SessionDep,
                     page: int = 1,
                     limit: int = 25
                     ):
-    items = models.Items
+    items = ItemsModels.Items
     query = select(items)
 
     if product_name:
@@ -47,8 +48,8 @@ async def get_items(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/items/{item_id}", tags=["items"], response_model=schemas.Items)
+@router.get("/api/items/{item_id}", tags=["items"], response_model=ItemsSchema)
 async def get_item(item_id: int, session: SessionDep):
-    statement = select(models.Items).where(models.Items.id == item_id)
-    item = session.exec(statement).first()
+    query = select(ItemsModels.Items).where(ItemsModels.Items.id == item_id)
+    item = session.exec(query).first()
     return item
