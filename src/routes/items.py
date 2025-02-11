@@ -9,7 +9,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/items", tags=["items"], response_model=List[schemas.Items])
+@router.get("/api/items", tags=["items"], response_model=List[schemas.Items])
 async def get_items(session: SessionDep,
                     product_name: str = None,
                     price: float = None,
@@ -47,7 +47,7 @@ async def get_items(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/items/{item_id}", tags=["items"], response_model=schemas.Items)
+@router.get("/api/items/{item_id}", tags=["items"], response_model=schemas.Items)
 async def get_item(item_id: int, session: SessionDep):
     statement = select(models.Items).where(models.Items.id == item_id)
     item = session.exec(statement).first()
