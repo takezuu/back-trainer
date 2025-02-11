@@ -1,5 +1,4 @@
 from datetime import date, datetime
-from typing import List
 from sqlalchemy.dialects.postgresql import JSON
 from sqlmodel import Field, SQLModel, Column
 
@@ -29,7 +28,7 @@ class Customers(SQLModel, table=True):
 class Orders(SQLModel, table=True):
     id: int = Field(primary_key=True, index=True)
     customer_id: int = Field(index=True)
-    items_ids: List[int] = Field(sa_column=Column(JSON))
+    items_ids: list[int] = Field(sa_column=Column(JSON))
     order_date: datetime = Field(index=True)
     discount: int = Field(index=True)
     total_amount: float = Field(index=True)

@@ -1,5 +1,4 @@
 from datetime import date, datetime
-from typing import List
 from pydantic import BaseModel
 
 
@@ -27,7 +26,7 @@ class Customers(BaseModel):
 class Orders(BaseModel):
     id: int
     customer_id: int
-    items_ids: List[int]
+    items_ids: list[int]
     order_date: datetime
     discount: float
     total_amount: float

@@ -9,8 +9,8 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/users", tags=["users"], response_model=List[schemas.Users])
-async def read_users(session: SessionDep,
+@router.get("/api/users", tags=["users"], response_model=List[schemas.Users])
+async def get_users(session: SessionDep,
                      username: str = None,
                      email: str = None,
                      country_code: str = None,
@@ -39,8 +39,8 @@ async def read_users(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/users/{user_id}", tags=["users"], response_model=schemas.Users)
-async def read_users(user_id: int, session: SessionDep):
+@router.get("/api/users/{user_id}", tags=["users"], response_model=schemas.Users)
+async def get_user(user_id: int, session: SessionDep):
     statement = select(models.Users).where(models.Users.id == user_id)
     user = session.exec(statement).first()
     return user
