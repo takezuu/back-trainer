@@ -7,7 +7,8 @@ create table users (
 	created_at DATE,
 	last_login_time VARCHAR(50),
 	country_code VARCHAR(50),
-	phone VARCHAR(50)
+	phone VARCHAR(50),
+	UNIQUE (email, phone)
 );
 
 create table customers (
