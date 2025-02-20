@@ -2,15 +2,16 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends
 from sqlmodel import Session
 from sqlmodel import select
-from src import schemas, models
+from src.schemas.users import UsersSchemas
+from src.models.users import UsersModels
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/users", tags=["users"], response_model=List[schemas.Users])
-async def read_users(session: SessionDep,
+@router.get("/api/users", tags=["users"], response_model=List[UsersSchemas.Users])
+async def get_users(session: SessionDep,
                      username: str = None,
                      email: str = None,
                      country_code: str = None,
@@ -18,7 +19,7 @@ async def read_users(session: SessionDep,
                      sort: str = "id",
                      order_by: str = "asc",
                      page: int = 1, limit: int = 25):
-    users = models.Users
+    users = UsersModels.Users
     query = select(users)
 
     if username:
@@ -39,8 +40,17 @@ async def read_users(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/users/{user_id}", tags=["users"], response_model=schemas.Users)
-async def read_users(user_id: int, session: SessionDep):
-    statement = select(models.Users).where(models.Users.id == user_id)
-    user = session.exec(statement).first()
+@router.get("/api/users/{user_id}", tags=["users"], response_model=UsersSchemas.Users)
+async def get_user(user_id: int, session: SessionDep):
+    query = select(UsersModels.Users).where(UsersModels.Users.id == user_id)
+    user = session.exec(query).first()
     return user
+
+
+@router.post("/api/users", tags=["users"], response_model=UsersSchemas.UserAdded)
+async def create_user(user: UsersModels.UserAdd, session: SessionDep):
+    db_user = UsersModels.Users(**user.model_dump())
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
