@@ -34,6 +34,7 @@
             color: #ffffff; 
             border: 1px solid #555; 
             text-align: center;
+			box-sizing: border-box;
         }
         select, input { flex: 1; }
         button.send-btn { width: 150px; }
@@ -70,20 +71,37 @@
         .tab.active { background: #666; }
         .tab-content { display: none; margin-top: 10px; }
         .tab-content.active { display: block; }
-    </style>
+		.input-container {
+			display: flex;
+			flex-direction: column;
+			width: 100%;
+			margin-bottom: 10px;	
+		}
+
+		label {
+			margin-bottom: 5px;
+			font-weight: bold;
+		}
+</style>
 </head>
 <body>
     <div class="container">
         <h1>REST API Trainer</h1>
         <div class="form-group">
-            <select id="method" onchange="updateDescription()">
-                <option value="GET">GET</option>
-                <option value="POST">POST</option>
-                <option value="PUT">PUT</option>
-                <option value="DELETE">DELETE</option>
-            </select>
-            <input id="endpoint" type="text">
-        </div>
+			<div class="input-container">
+				<label for="method">HTTP Method:</label>
+				<select id="method" onchange="updateDescription()">
+					<option value="GET">GET</option>
+					<option value="POST">POST</option>
+					<option value="PUT">PUT</option>
+					<option value="DELETE">DELETE</option>
+				</select>
+			</div>
+			<div class="input-container">
+				<label for="endpoint">API Endpoint:</label>
+				<input id="endpoint" type="text">
+			</div>
+		</div>
         <p id="method-description" class="method-description">GET: Получение списка пользователей из PostgreSQL.</p>
         <label for="body">Request Body (JSON):</label>
         <textarea id="body">{"name": "John Doe", "email": "john@example.com"}</textarea>
