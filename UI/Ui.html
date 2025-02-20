@@ -3,129 +3,110 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PostgreSQL REST API QA Trainer</title>
+    <title>REST API Trainer</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-            background: #1e1e1e;
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px; 
+            background: #1e1e1e; 
             color: #ffffff;
+            margin: 0 auto;
+            max-width: 1200px;
+            text-align: center;
         }
-
-        textarea, input, select, button {
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
             width: 100%;
-            margin-bottom: 10px;
-            padding: 5px;
-            background: #2e2e2e;
-            color: #ffffff;
-            border: 1px solid #555;
         }
-
-        button {
-            cursor: pointer;
-        }
-
-        pre {
-            background: #2e2e2e;
-            padding: 10px;
-            color: #ffffff;
-            border: 1px solid #555;
-        }
-
-        table {
+        .form-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-            background: #2e2e2e;
-            color: #ffffff;
         }
-
-        th, td {
-            border: 1px solid #555;
-            padding: 8px;
+        textarea, input, select, button { 
+            width: 100%; 
+            margin-bottom: 10px; 
+            padding: 10px; 
+            background: #2e2e2e; 
+            color: #ffffff; 
+            border: 1px solid #555; 
+            text-align: center;
+        }
+        select, input { flex: 1; }
+        button.send-btn { width: 150px; }
+        pre { 
+            background: #2e2e2e; 
+            padding: 10px; 
+            color: #ffffff; 
+            border: 1px solid #555; 
+            width: 100%; max-width: 100%;
             text-align: left;
         }
-
-        tr:nth-child(even) {
-            background: #333;
+        table { 
+            width: 80%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+            background: #2e2e2e; 
+            color: #ffffff; 
         }
-
-        tr:nth-child(odd) {
-            background: #444;
+        th, td { 
+            border: 1px solid #555; 
+            padding: 8px; 
+            text-align: left; 
+            white-space: nowrap;
         }
-
-        .method-description {
-            font-size: 0.9em;
-            color: #bbbbbb;
-            margin-bottom: 10px;
+        th.resizable {
+            position: relative;
+            cursor: col-resize;
         }
-
-        .tabs {
-            display: flex;
-            margin-top: 10px;
-        }
-
-        .tab {
-            padding: 10px;
-            cursor: pointer;
-            background: #444;
-            color: white;
-            border: 1px solid #555;
-        }
-
-            .tab.active {
-                background: #666;
-            }
-
-        .tab-content {
-            display: none;
-            margin-top: 10px;
-        }
-
-            .tab-content.active {
-                display: block;
-            }
+        tr:nth-child(even) { background: #333; }
+        tr:nth-child(odd) { background: #444; }
+        .method-description { font-size: 0.9em; color: #bbbbbb; margin-bottom: 10px; }
+        .tabs { display: flex; justify-content: flex-start; margin-top: 10px; width: 80%; }
+        .tab { padding: 10px; cursor: pointer; background: #444; color: white; border: 1px solid #555; }
+        .tab.active { background: #666; }
+        .tab-content { display: none; margin-top: 10px; }
+        .tab-content.active { display: block; }
     </style>
 </head>
 <body>
-    <h1>PostgreSQL REST API QA Trainer</h1>
-    <label for="method">HTTP Method:</label>
-    <select id="method" onchange="updateDescription()">
-        <option value="GET">GET</option>
-        <option value="POST">POST</option>
-        <option value="PUT">PUT</option>
-        <option value="DELETE">DELETE</option>
-    </select>
-    <p id="method-description" class="method-description">GET: Получение списка пользователей из PostgreSQL.</p>
-
-    <label for="endpoint">API Endpoint:</label>
-    <input id="endpoint" type="text" value="http://localhost:8000/users">
-    <label for="body">Request Body (JSON):</label>
-    <textarea id="body">{"name": "John Doe", "email": "john@example.com"}</textarea>
-    <button onclick="sendRequest()">Send Request</button>
-
-    <h2>Response:</h2>
-    <div class="tabs">
-        <div class="tab active" data-tab="json" onclick="showTab('json')">JSON</div>
-        <div class="tab" data-tab="table" onclick="showTab('table')">Table</div>
+    <div class="container">
+        <h1>REST API Trainer</h1>
+        <div class="form-group">
+            <select id="method" onchange="updateDescription()">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+            </select>
+            <input id="endpoint" type="text">
+        </div>
+        <p id="method-description" class="method-description">GET: Получение списка пользователей из PostgreSQL.</p>
+        <label for="body">Request Body (JSON):</label>
+        <textarea id="body">{"name": "John Doe", "email": "john@example.com"}</textarea>
+        <button class="send-btn" onclick="sendRequest()">Send Request</button>
+        
+        <h2 style="text-align: left; width: 80%;">Response:</h2>
+        <div class="tabs">
+            <div class="tab active" data-tab="json" onclick="showTab('json')">JSON</div>
+            <div class="tab" data-tab="table" onclick="showTab('table')">Table</div>
+        </div>
+        
+        <div id="json-tab" class="tab-content active">
+            <pre id="response" style="text-align: left; width: 100%; max-width: 1000px;"></pre>
+        </div>
+        
+        <div id="table-tab" class="tab-content">
+            <table id="table-output">
+                <thead></thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
-
-    <div id="json-tab" class="tab-content active">
-        <pre id="response"></pre>
-    </div>
-
-    <div id="table-tab" class="tab-content">
-        <div id="table-output"></div>
-    </div>
-
-    <h2>Example Requests:</h2>
-    <pre>{
-    "GET": "http://localhost:8000/users",
-    "POST": { "url": "http://localhost:8000/users", "body": { "name": "John Doe", "email": "john@example.com" } },
-    "PUT": { "url": "http://localhost:8000/users/1", "body": { "name": "Jane Doe" } },
-    "DELETE": "http://localhost:8000/users/1"
-}</pre>
-
+    
     <script>
         function updateDescription() {
             const descriptions = {
@@ -144,45 +125,102 @@
             document.getElementById(`${tab}-tab`).classList.add('active');
         }
 
-        async function sendRequest() {
+        function getServerIp() {
+            return window.location.hostname;
+        }
+
+        document.getElementById("endpoint").value = `http://${getServerIp()}:8000/api/users`;
+    </script>
+	<script>
+    function updateDescription() {
+        const descriptions = {
+            "GET": "GET: Получение списка пользователей из PostgreSQL.",
+            "POST": "POST: Создание нового пользователя.",
+            "PUT": "PUT: Обновление данных пользователя.",
+            "DELETE": "DELETE: Удаление пользователя."
+        };
+        document.getElementById('method-description').textContent = descriptions[document.getElementById('method').value];
+    }
+
+    function showTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+        document.getElementById(`${tab}-tab`).classList.add('active');
+    }
+
+    function getServerIp() {
+        return window.location.hostname;
+    }
+
+    document.getElementById("endpoint").value = `http://${getServerIp()}:8000/api/users`;
+
+    // Функция для отправки запроса
+    async function sendRequest() {
+        try {
             const method = document.getElementById('method').value;
             const endpoint = document.getElementById('endpoint').value;
             const body = document.getElementById('body').value;
-            const responseElement = document.getElementById('response');
-            const tableOutput = document.getElementById('table-output');
-            tableOutput.innerHTML = '';
 
             let options = {
-                method,
+                method: method,
                 headers: {
                     'Content-Type': 'application/json'
                 }
             };
+
             if (method !== 'GET' && method !== 'DELETE') {
                 options.body = body;
             }
 
-            try {
-                const response = await fetch(endpoint, options);
-                const result = await response.json();
-                responseElement.textContent = JSON.stringify(result, null, 2);
+            const response = await fetch(endpoint, options);
+            const data = await response.json();
 
-                if (Array.isArray(result) && result.length > 0) {
-                    let table = '<table><tr>';
-                    Object.keys(result[0]).forEach(key => table += `<th>${key}</th>`);
-                    table += '</tr>';
-                    result.forEach((row, index) => {
-                        table += `<tr${index % 2 === 0 ? ' class="even"' : ' class="odd"'}>`;
-                        Object.values(row).forEach(value => table += `<td>${value}</td>`);
-                        table += '</tr>';
+            // Вывод JSON ответа
+            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
+
+            // Вывод таблицы
+            if (Array.isArray(data)) {
+                const tableBody = document.querySelector('#table-output tbody');
+                const tableHeaders = document.querySelector('#table-output thead');
+
+                // Очистка таблицы
+                tableBody.innerHTML = '';
+                tableHeaders.innerHTML = '';
+
+                // Добавление заголовков таблицы
+                if (data.length > 0) {
+                    const keys = Object.keys(data[0]);
+                    const headerRow = document.createElement('tr');
+                    keys.forEach(key => {
+                        const th = document.createElement('th');
+                        th.textContent = key;
+                        headerRow.appendChild(th);
                     });
-                    table += '</table>';
-                    tableOutput.innerHTML = table;
+                    tableHeaders.appendChild(headerRow);
+
+                    // Добавление строк таблицы
+                    data.forEach(row => {
+                        const tr = document.createElement('tr');
+                        keys.forEach(key => {
+                            const td = document.createElement('td');
+                            td.textContent = row[key] || '';
+                            tr.appendChild(td);
+                        });
+                        tableBody.appendChild(tr);
+                    });
                 }
-            } catch (error) {
-                responseElement.textContent = 'Error: ' + error.message;
+            } else {
+                document.querySelector('#table-output tbody').innerHTML = '<tr><td colspan="1">Нет данных для отображения</td></tr>';
             }
+
+            // Переключение на вкладку JSON по умолчанию
+            showTab('json');
+        } catch (error) {
+            console.error('Ошибка:', error);
+            document.getElementById('response').textContent = 'Произошла ошибка при выполнении запроса.';
         }
-    </script>
+    }
+</script>
 </body>
 </html>
