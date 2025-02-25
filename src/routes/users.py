@@ -77,7 +77,7 @@ async def create_user(user_data: dict, session: Annotated[Session, Depends(get_s
     
 
     if "username" not in user_data or not isinstance(user_data["username"], str) or not user_data["username"]:
-        raise HTTPException(status_code=400, detail="Username is required")
+        raise HTTPException(status_code=400, detail="Username is required and must be a string")
     
     if "phone" not in user_data or not isinstance(user_data["phone"], str) or not user_data["phone"].strip():
         raise HTTPException(status_code=400, detail="Phone is required and must be a string")
