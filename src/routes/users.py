@@ -73,7 +73,7 @@ async def get_user(user_id: int, session: SessionDep):
 
 
 @router.post("/api/users", tags=["users"])
-async def create_user(user_data: dict, session: Annotated[Session, Depends(get_session)]):
+async def create_user(user_data: dict, session: SessionDep):
     
 
     if "username" not in user_data or not isinstance(user_data["username"], str) or not user_data["username"]:
