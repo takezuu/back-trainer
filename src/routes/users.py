@@ -99,4 +99,4 @@ async def create_user(user_data: dict, session: Annotated[Session, Depends(get_s
     session.commit()
     session.refresh(db_user)
 
-    return db_user 
+    return db_user.model_dump(exclude={"password_hash"}) 
