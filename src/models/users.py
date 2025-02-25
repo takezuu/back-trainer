@@ -3,82 +3,66 @@ from datetime import datetime
 from typing import Optional
 from pydantic import EmailStr, field_validator
 from sqlmodel import Field, SQLModel
+import hashlib
 
 
+class UserAddedResponse(SQLModel):
+    id: int
 
-
-class UserBase(SQLModel):
-    username: str = Field(index=True)
-    email: EmailStr = Field(index=True)
-    phone: str = Field(index=True)
+class UserAdd(SQLModel):
+    username: str
+    email: str
+    phone: str
+    password: str
+    created_at: str = Field(default_factory=lambda: datetime.today().strftime("%m/%d/%Y"))
 
     @field_validator("username")
-    @classmethod
-    def validate_username(cls, value: str) -> str:
-        if not (5 <= len(value) <= 15):
-            raise ValueError("Длина логина должна быть от 5 до 15 символов.")
+    def validate_username(cls, value: str):
+        if len(value) < 5 or len(value) > 15:
+            raise HTTPException(status_code=404, detail="login length should be from 5 to 15 characters")
+        if not value.isalnum():
+            raise HTTPException(status_code=404, detail="available only latin letters and digits in username")
+        return value
+
+    @field_validator("email")
+    def validate_email(cls, value: str):
+        email_pattern = re.compile(r'[A-z\d_\.]{1,25}@[A-z\d_]{1,25}\.[A-z]{2,3}')
+        result = email_pattern.match(value)
+        if not result:
+            raise HTTPException(status_code=404, detail="wrong email pattern")
+        if len(value) < 5 or len(value) > 30:
+            raise HTTPException(status_code=404, detail="email length should be from 5 to 30 characters")
+        if ' ' in value:
+            raise HTTPException(status_code=404, detail="space in email")
         return value
 
     @field_validator("phone")
-    @classmethod
-    def validate_phone(cls, value: str) -> str:
-        phone_pattern = re.compile(r"^\+\d{11,15}$")
-        if not phone_pattern.match(value):
-            raise ValueError("Номер телефона должен соответствовать формату: + и от 11 до 15 цифр, например: +73423455443.")
+    def validate_phone(cls, value: str):
+        phone_pattern = re.compile(r"\+\d{11,15}")
+        result = phone_pattern.match(value)
+        if not result:
+            raise HTTPException(status_code=404,
+                                detail="phone pattern is: + and digits from 11 to 15 example: +73423455443")
+        if len(value) < 12 or len(value) > 16:
+            raise HTTPException(status_code=404, detail="phone length should be from 12 to 16 characters")
+        if not value[1:].isdigit():
+            raise HTTPException(status_code=404, detail="available only latin letters and digits")
         return value
-
-class User(UserBase, table=True):
-    __tablename__ = "users"  # Явно задаем имя таблицы, чтобы избежать конфликта
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    password_hash: str
-    ip_address: Optional[str] = Field(default=None, index=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
-    last_login_time: Optional[datetime] = Field(default=None, index=True)
-    country_code: Optional[str] = Field(default=None, index=True)
-
-    @field_validator("last_login_time", mode="before", check_fields=False)
-    @classmethod
-    def validate_last_login_time(cls, value):
-        if isinstance(value, str):
-            try:
-                return datetime.strptime(value, "%I:%M %p")
-            except ValueError:
-                raise ValueError("Неверный формат времени. Ожидается 'HH:MM AM/PM'.")
-        return value
-
-class UserCreate(UserBase):
-    password: str
 
     @field_validator("password")
-    @classmethod
-    def validate_password(cls, value: str) -> str:
-        if not (5 <= len(value) <= 20):
-            raise ValueError("Длина пароля должна быть от 5 до 20 символов.")
+    def validate_password(cls, value: str):
+        if len(value) < 5 or len(value) > 20:
+            raise HTTPException(status_code=404, detail="password length should be from 5 to 20 characters")
+        if not value.isalnum():
+            raise HTTPException(status_code=404, detail="available only latin letters and digits in password")
+        if not any(char.isdigit() for char in value):
+            raise HTTPException(status_code=404, detail="password should have at least one numeral")
+        if not any(char.isupper() for char in value):
+            raise HTTPException(status_code=404, detail="password should have at least one uppercase letter")
+        if not any(char.islower() for char in value):
+            raise HTTPException(status_code=404, detail="Password should have at least one lowercase letter")
+
+        salt = "5gz"
+        value = value + salt
+        value = hashlib.md5(value.encode())
         return value
-
-class UserID(SQLModel):
-    id: int
- 
-    
-
-class UserRead(SQLModel):
-    id: int
-    username: str = Field(index=True)
-    email: str = Field(index=True)
-    ip_address: Optional[str] = Field(default=None, index=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
-    last_login_time: Optional[datetime] = None
-    country_code: str = Field(index=True)
-    phone: str = Field(index=True)
-
-    @field_validator("last_login_time", mode="before", check_fields=False)
-    @classmethod
-    def validate_last_login_time(cls, value):
-        if isinstance(value, str):
-            try:
-                return datetime.strptime(value, "%I:%M %p")
-            except ValueError:
-                raise ValueError("Неверный формат времени. Ожидается 'HH:MM AM/PM'.")
-        return value
-  

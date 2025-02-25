@@ -49,6 +49,7 @@ async def get_user(user_id: int, session: SessionDep):
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+<<<<<<< HEAD
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
@@ -58,6 +59,23 @@ async def create_user(user: UserCreate, session: SessionDep):
     phone_exists = session.exec(select(User).where(User.phone == user.phone)).first()
     if phone_exists:
         raise HTTPException(status_code=400, detail="Phone is already in use")
+=======
+@router.post("/api/users", tags=["users"], response_model=UsersModels.UserAddedResponse)
+async def create_user(user: UsersModels.UserAdd, session: SessionDep):
+    db_user = UsersModels.Users(**user.model_dump())
+
+    if not db_user.phone:
+        raise HTTPException(status_code=400, detail="Phone is required")
+
+    if not db_user.email:
+        raise HTTPException(status_code=400, detail="Email is required")
+
+    if db_user.phone:
+        query = select(UsersModels.Users).where(UsersModels.Users.phone == db_user.phone)
+        phone_exists = session.exec(query).first() is not None
+        if phone_exists:
+            raise HTTPException(status_code=404, detail="Phone is already use")
+>>>>>>> main
 
     # Проверка уникальности email
     email_exists = session.exec(select(User).where(User.email == user.email)).first()
@@ -75,4 +93,10 @@ async def create_user(user: UserCreate, session: SessionDep):
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
+<<<<<<< HEAD
     return db_user
+=======
+    return db_user
+
+#TODO add hash pw
+>>>>>>> main
