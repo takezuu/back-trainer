@@ -1,8 +1,8 @@
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
-from sqlmodel import Session
-from sqlmodel import select
+from sqlmodel import Session, select
+
 
 from src.schemas.users import UsersSchemas
 from src.models.users import UsersModels
@@ -49,24 +49,54 @@ async def get_user(user_id: int, session: SessionDep):
     return user
 
 
-@router.post("/api/users", tags=["users"], response_model=UsersSchemas.UserAdded)
-async def create_user(user: UsersModels.UserAdd, session: SessionDep):
-    print(user)
-    db_user = UsersModels.Users(**user.model_dump())
+# @router.post("/api/users", tags=["users"], response_model=UsersSchemas.UserAdded)
+# async def create_user(user: UsersModels.UserAdd, session: SessionDep):
+#     print(user)
+#     db_user = UsersModels.Users(**user.model_dump())
+
+#     if db_user.phone:
+#         query = select(UsersModels.Users).where(UsersModels.Users.phone == db_user.phone)
+#         phone_exists = session.exec(query).first() is not None
+#         if phone_exists:
+#             raise HTTPException(status_code=404, detail="Phone is already use")
+
+#     if db_user.email:
+#         query = select(UsersModels.Users).where(UsersModels.Users.email == db_user.email)
+#         email_exists = session.exec(query).first() is not None
+#         if email_exists:
+#             raise HTTPException(status_code=404, detail="Email is already use")
+
+#     session.add(db_user)
+#     session.commit()
+#     session.refresh(db_user)
+#     return db_user
+
+
+@router.post("/api/users", tags=["users"])
+async def create_user(user_data: dict, session: Annotated[Session, Depends(get_session)]):
+    
+
+    if "username" not in user_data or not isinstance(user_data["username"], str) or not user_data["username"]:
+        raise HTTPException(status_code=400, detail="Username is required")
+    
+    if "phone" not in user_data or not isinstance(user_data["phone"], str) or not user_data["phone"].strip():
+        raise HTTPException(status_code=400, detail="Phone is required and must be a string")
+
+
+    db_user = UsersModels.Users(**user_data)
 
     if db_user.phone:
         query = select(UsersModels.Users).where(UsersModels.Users.phone == db_user.phone)
-        phone_exists = session.exec(query).first() is not None
-        if phone_exists:
-            raise HTTPException(status_code=404, detail="Phone is already use")
-
+        if session.exec(query).first():
+            raise HTTPException(status_code=400, detail="Phone is already in use")
+  
     if db_user.email:
         query = select(UsersModels.Users).where(UsersModels.Users.email == db_user.email)
-        email_exists = session.exec(query).first() is not None
-        if email_exists:
-            raise HTTPException(status_code=404, detail="Email is already use")
+        if session.exec(query).first():
+            raise HTTPException(status_code=400, detail="Email is already in use")
 
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
-    return db_user
+
+    return db_user 
