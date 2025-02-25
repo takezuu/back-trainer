@@ -37,6 +37,16 @@ class User(UserBase, table=True):
     last_login_time: Optional[datetime] = Field(default=None, index=True)
     country_code: Optional[str] = Field(default=None, index=True)
 
+    @field_validator("last_login_time", mode="before", check_fields=False)
+    @classmethod
+    def validate_last_login_time(cls, value):
+        if isinstance(value, str):
+            try:
+                return datetime.strptime(value, "%I:%M %p")
+            except ValueError:
+                raise ValueError("Неверный формат времени. Ожидается 'HH:MM AM/PM'.")
+        return value
+
 class UserCreate(UserBase):
     password: str
 
@@ -47,8 +57,28 @@ class UserCreate(UserBase):
             raise ValueError("Длина пароля должна быть от 5 до 20 символов.")
         return value
 
-class UserRead(UserBase):
+class UserID(SQLModel):
     id: int
-    created_at: datetime
-    last_login_time: Optional[str]  # Изменено с datetime на str
+ 
+    
 
+class UserRead(SQLModel):
+    id: int
+    username: str = Field(index=True)
+    email: str = Field(index=True)
+    ip_address: Optional[str] = Field(default=None, index=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
+    last_login_time: Optional[datetime] = None
+    country_code: str = Field(index=True)
+    phone: str = Field(index=True)
+
+    @field_validator("last_login_time", mode="before", check_fields=False)
+    @classmethod
+    def validate_last_login_time(cls, value):
+        if isinstance(value, str):
+            try:
+                return datetime.strptime(value, "%I:%M %p")
+            except ValueError:
+                raise ValueError("Неверный формат времени. Ожидается 'HH:MM AM/PM'.")
+        return value
+  

@@ -1,7 +1,7 @@
 from typing import List, Optional, Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
-from src.models.users import User, UserCreate, UserRead
+from src.models.users import User, UserCreate, UserID, UserRead
 from src.database import get_session
 from passlib.context import CryptContext
 
@@ -52,7 +52,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
-@router.post("/api/users", tags=["users"], response_model=UserRead)
+@router.post("/api/users", tags=["users"], response_model=UserID)
 async def create_user(user: UserCreate, session: SessionDep):
     # Проверка уникальности телефона
     phone_exists = session.exec(select(User).where(User.phone == user.phone)).first()
