@@ -49,10 +49,15 @@ async def get_user(user_id: int, session: SessionDep):
     return user
 
 
-@router.post("/api/users", tags=["users"], response_model=UsersSchemas.UserAdded)
+@router.post("/api/users", tags=["users"], response_model=UsersModels.UserAddedResponse)
 async def create_user(user: UsersModels.UserAdd, session: SessionDep):
-    print(user)
     db_user = UsersModels.Users(**user.model_dump())
+
+    if not db_user.phone:
+        raise HTTPException(status_code=400, detail="Phone is required")
+
+    if not db_user.email:
+        raise HTTPException(status_code=400, detail="Email is required")
 
     if db_user.phone:
         query = select(UsersModels.Users).where(UsersModels.Users.phone == db_user.phone)
@@ -70,3 +75,5 @@ async def create_user(user: UsersModels.UserAdd, session: SessionDep):
     session.commit()
     session.refresh(db_user)
     return db_user
+
+#TODO add hash pw
