@@ -23,6 +23,13 @@ async def get_users(session: SessionDep,
                     sort: str = "id",
                     order_by: str = "asc",
                     page: int = 1, limit: int = 25):
+
+    if page < 1:
+        raise HTTPException(status_code=400, detail="Page must be greater than or equl to 1")
+    if limit < 1:
+        raise HTTPException(status_code=400, detail="Limit must be greater than or equl to 1")
+
+
     users = UsersModels.Users
     query = select(users)
 
@@ -35,7 +42,7 @@ async def get_users(session: SessionDep,
     if phone:
         query = query.where(users.phone == phone)
     if q:
-        query = query.where((users.username.contains(q)) | (users.email.contains(q)))
+        query = query.where((users.full_name.contains(q)) | (users.email.contains(q)))
 
     order = getattr(users, sort)
     if order_by == "desc":
@@ -52,6 +59,7 @@ async def get_user(user_id: int, session: SessionDep):
     query = select(UsersModels.Users).where(UsersModels.Users.id == user_id)
     user = session.exec(query).first()
     return user
+#TODO DEPENDS CHECK USER EXISTS
 
 
 @router.post("/api/users", tags=["users"], status_code=status.HTTP_201_CREATED, response_model=UsersModels.UserAddedResponse)
@@ -80,7 +88,11 @@ async def create_user(user: UsersModels.UserAdd, session: SessionDep):
         if email_exists:
             raise HTTPException(status_code=409, detail="Email is already use")
 
-    session.add(db_user)
-    session.commit()
-    session.refresh(db_user)
+    try:
+        session.add(db_user)
+        session.commit()
+        session.refresh(db_user)
+    except Exception as err:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f'Failed create a user: {err}')
     return db_user
