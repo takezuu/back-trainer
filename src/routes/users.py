@@ -33,7 +33,7 @@ async def get_users(session: SessionDep,
     if country_code:
         query = query.where(users.country_code == country_code)
     if phone:
-        query = query.where(users.country_code == phone)
+        query = query.where(users.phone == phone)
     if q:
         query = query.where((users.username.contains(q)) | (users.email.contains(q)))
 
@@ -72,13 +72,13 @@ async def create_user(user: UsersModels.UserAdd, session: SessionDep):
         query = select(UsersModels.Users).where(UsersModels.Users.phone == db_user.phone)
         phone_exists = session.exec(query).first() is not None
         if phone_exists:
-            raise HTTPException(status_code=404, detail="Phone is already use")
+            raise HTTPException(status_code=409, detail="Phone is already use")
 
     if db_user.email:
         query = select(UsersModels.Users).where(UsersModels.Users.email == db_user.email)
         email_exists = session.exec(query).first() is not None
         if email_exists:
-            raise HTTPException(status_code=404, detail="Email is already use")
+            raise HTTPException(status_code=409, detail="Email is already use")
 
     session.add(db_user)
     session.commit()

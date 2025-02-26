@@ -25,7 +25,7 @@ class UsersModels:
         can_delete: bool = True
 
         @field_validator("full_name")
-        def validate_username(cls, value: str):
+        def validate_full_name(cls, value: str):
             if len(value) < 5 or len(value) > 15:
                 raise HTTPException(status_code=400, detail="login length should be from 5 to 100 characters")
             full_name_pattern = re.compile(r'^[A-z]{1,30} [A-z]{1,30}$')
