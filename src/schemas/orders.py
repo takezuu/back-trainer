@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class OrdersSchema(BaseModel):
     id: int
-    customer_id: int
+    user_id: int
     items_ids: list[int]
     order_date: datetime
     discount: float
@@ -14,7 +14,7 @@ class OrdersSchema(BaseModel):
 
 class OrderByidSchema(BaseModel):
     id: int
-    customer_id: int
+    user_id: int
     order_date: datetime
     discount: float
     total_amount: float
