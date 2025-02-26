@@ -1,10 +1,10 @@
+import hashlib
 from typing import List, Annotated
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlmodel import Session
 from sqlmodel import select
 
-from src.schemas.users import UsersSchemas
 from src.models.users import UsersModels
 from src.database import get_session
 
@@ -12,11 +12,13 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/api/users", tags=["users"], response_model=List[UsersSchemas.Users])
+@router.get("/api/users", tags=["users"], status_code=status.HTTP_200_OK,
+            response_model=List[UsersModels.UsersResponse])
 async def get_users(session: SessionDep,
-                    username: str = None,
+                    full_name: str = None,
                     email: str = None,
                     country_code: str = None,
+                    phone: str = None,
                     q: str = None,
                     sort: str = "id",
                     order_by: str = "asc",
@@ -24,12 +26,14 @@ async def get_users(session: SessionDep,
     users = UsersModels.Users
     query = select(users)
 
-    if username:
-        query = query.where(users.username == username)
+    if full_name:
+        query = query.where(users.full_name.contains(full_name))
     if email:
         query = query.where(users.email == email)
     if country_code:
         query = query.where(users.country_code == country_code)
+    if phone:
+        query = query.where(users.country_code == phone)
     if q:
         query = query.where((users.username.contains(q)) | (users.email.contains(q)))
 
@@ -42,15 +46,20 @@ async def get_users(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/users/{user_id}", tags=["users"], response_model=UsersSchemas.Users)
+@router.get("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
+            response_model=UsersModels.UsersResponse)
 async def get_user(user_id: int, session: SessionDep):
     query = select(UsersModels.Users).where(UsersModels.Users.id == user_id)
     user = session.exec(query).first()
     return user
 
 
-@router.post("/api/users", tags=["users"], response_model=UsersModels.UserAddedResponse)
+@router.post("/api/users", tags=["users"], status_code=status.HTTP_201_CREATED, response_model=UsersModels.UserAddedResponse)
 async def create_user(user: UsersModels.UserAdd, session: SessionDep):
+    salt = "5gz"
+    user.password = user.password + salt
+    user.password = hashlib.md5(user.password.encode()).hexdigest()
+
     db_user = UsersModels.Users(**user.model_dump())
 
     if not db_user.phone:
@@ -75,5 +84,3 @@ async def create_user(user: UsersModels.UserAdd, session: SessionDep):
     session.commit()
     session.refresh(db_user)
     return db_user
-
-#TODO add hash pw
