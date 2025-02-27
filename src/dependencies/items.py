@@ -8,7 +8,7 @@ from src.database import get_session
 from src.models.items import ItemsModels
 
 
-async def item_exists(item_id: int, session: AsyncSession = Depends(get_session)) -> dict[str, Any]:
+async def item_exists(item_id: int, session: AsyncSession = Depends(get_session)):
     query = select(ItemsModels.Items).where(ItemsModels.Items.id == item_id)
     item = session.exec(query).first()
     if item:

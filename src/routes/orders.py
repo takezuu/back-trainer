@@ -1,10 +1,10 @@
 from datetime import datetime
-from typing import List, Annotated
+from typing import List, Annotated, Any
 from fastapi import APIRouter, Depends
 from sqlmodel import Session,select
 
+from src.dependencies.orders import order_exists
 from src.models.items import ItemsModels
-from src.schemas.orders import OrdersSchema, OrderByidSchema
 from src.models.orders import OrdersModels
 from src.database import get_session
 
@@ -12,7 +12,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/api/orders", tags=["orders"], response_model=List[OrdersSchema])
+@router.get("/api/orders", tags=["orders"], response_model=List[OrdersModels.Orders])
 async def get_orders(session: SessionDep,
                      order_date: datetime = None,
                      discount: float = None,
@@ -47,10 +47,8 @@ async def get_orders(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrderByidSchema)
-async def get_order(order_id: int, session: SessionDep):
-    query = select(OrdersModels.Orders).where(OrdersModels.Orders.id == order_id)
-    order = session.exec(query).first()
+@router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrdersModels.Orders)
+async def get_order(session: SessionDep, order = Depends(order_exists)):
     items_data = []
     for item_id in order.items_ids:
         items = ItemsModels.Items

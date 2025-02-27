@@ -50,7 +50,7 @@ async def get_items(session: SessionDep,
 
 
 @router.get("/api/items/{item_id}", tags=["items"], response_model=ItemsModels.Items)
-async def get_item(item: dict[str, Any] = Depends(item_exists)):
+async def get_item(item = Depends(item_exists)):
     return item
 
 
