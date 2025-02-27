@@ -1,8 +1,6 @@
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlmodel import Session
-from sqlmodel import select
-
+from sqlmodel import Session, select
 from src.dependencies.items import item_exists
 from src.models.items import ItemsModels
 from src.database import get_session
@@ -50,7 +48,7 @@ async def get_items(session: SessionDep,
 
 
 @router.get("/api/items/{item_id}", tags=["items"], response_model=ItemsModels.Items)
-async def get_item(item = Depends(item_exists)):
+async def get_item(item=Depends(item_exists)):
     return item
 
 

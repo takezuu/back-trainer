@@ -64,9 +64,9 @@ async def get_order(session: SessionDep, order = Depends(order_exists)):
     order["items"] = items_data
     return order
 
-@router.post("/api/orders", tags=["items"], status_code=status.HTTP_201_CREATED,
+@router.post("/api/orders", tags=["orders"], status_code=status.HTTP_201_CREATED,
              response_model=OrdersModels.OrderAddedResponse)
-async def create_user(order: OrdersModels.OrderAdd, session: SessionDep):
+async def create_order(order: OrdersModels.OrderAdd, session: SessionDep):
     _ = user_exists(order.user_id)
 
     total_price = 0

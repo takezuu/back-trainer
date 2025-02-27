@@ -1,10 +1,7 @@
 import hashlib
-from typing import List, Annotated, Any
+from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
-
-from sqlmodel import Session
-from sqlmodel import select
-
+from sqlmodel import Session, select
 from src.dependencies.users import user_exists
 from src.models.users import UsersModels
 from src.database import get_session
@@ -54,7 +51,7 @@ async def get_users(session: SessionDep,
 
 @router.get("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
             response_model=UsersModels.UsersResponse)
-async def get_user(user = Depends(user_exists)):
+async def get_user(user=Depends(user_exists)):
     return user
 
 
