@@ -1,10 +1,8 @@
 from datetime import datetime
-
 from fastapi import HTTPException
 from pydantic import field_validator
-from pydantic_core.core_schema import is_instance_schema
 from sqlalchemy import Integer
-from sqlalchemy.dialects.postgresql import JSON, ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlmodel import Field, SQLModel, Column
 
 
