@@ -169,3 +169,16 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+.vs/ProjectSettings.json
+.vs/PythonSettings.json
+.vs/slnx.sqlite
+.vs/VSWorkspaceState.json
+.vs/hhh/FileContentIndex/27902367-8c8b-4fd6-8b38-35134efd6450.vsidx
+.vs/hhh/FileContentIndex/40fe361c-b785-45eb-977a-fef1d86a1793.vsidx
+.vs/hhh/FileContentIndex/92a810b4-e84a-4031-b833-5e2d303e69cf.vsidx
+.vs/hhh/FileContentIndex/9b499abe-7322-443e-bd01-1361911e7d59.vsidx
+.vs/hhh/FileContentIndex/e9d8e27d-3a04-4477-9784-c886d04fb819.vsidx
+.vs/hhh/v17/.wsuo
+.vs/hhh/v17/DocumentLayout.backup.json
+.vs/hhh/v17/DocumentLayout.json
+*.vsidx
