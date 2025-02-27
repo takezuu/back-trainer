@@ -12,3 +12,4 @@ class OrdersModels:
         total_amount: float = Field(index=True)
         status: str = Field(index=True)
         delivery_address: str = Field(index=True)
+
