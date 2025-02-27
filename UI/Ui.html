@@ -4,88 +4,139 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REST API Trainer</title>
+    <!--<link rel="icon" type="image/x-icon" href="/static/favicon.ico">-->
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
-            background: #1e1e1e; 
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1e1e1e;
             color: #ffffff;
             margin: 0 auto;
             max-width: 1200px;
             text-align: left;
         }
+
         #body {
             height: 224px;
         }
+
         .container {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             width: 100%;
         }
+
         .form-group {
             display: flex;
             justify-content: left;
             gap: 10px;
             width: 100%;
         }
-        textarea, input, select, button { 
-            width: 100%; 
-            margin-bottom: 10px; 
-            padding: 10px; 
-            background: #2e2e2e; 
-            color: #ffffff; 
-            border: 1px solid #555; 
+
+        textarea, input, select, button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #2e2e2e;
+            color: #ffffff;
+            border: 1px solid #555;
             text-align: left;
-			box-sizing: border-box;
+            box-sizing: border-box;
         }
-        select, input { flex: 1; }
-        button.send-btn { width: 150px; }
-        pre { 
-            background: #2e2e2e; 
-            padding: 10px; 
-            color: #ffffff; 
-            border: 1px solid #555; 
-            width: 100%; max-width: 100%;
+
+        select, input {
+            flex: 1;
+        }
+
+        button.send-btn {
+            width: 150px;
+        }
+
+        pre {
+            background: #2e2e2e;
+            padding: 10px;
+            color: #ffffff;
+            border: 1px solid #555;
+            width: 100%;
+            max-width: 100%;
             text-align: left;
         }
-        table { 
-            width: 80%; 
-            border-collapse: collapse; 
-            margin-top: 10px; 
-            background: #2e2e2e; 
-            color: #ffffff; 
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #2e2e2e;
+            color: #ffffff;
         }
-        th, td { 
-            border: 1px solid #555; 
-            padding: 8px; 
-            text-align: left; 
+
+        th, td {
+            border: 1px solid #555;
+            padding: 8px;
+            text-align: left;
             white-space: nowrap;
         }
-        th.resizable {
-            position: relative;
-            cursor: col-resize;
-        }
-        tr:nth-child(even) { background: #333; }
-        tr:nth-child(odd) { background: #444; }
-        .method-description { font-size: 0.9em; color: #bbbbbb; margin-bottom: 10px; }
-        .tabs { display: flex; justify-content: flex-start; margin-top: 10px; width: 80%; }
-        .tab { padding: 10px; cursor: pointer; background: #444; color: white; border: 1px solid #555; }
-        .tab.active { background: #666; }
-        .tab-content { display: none; margin-top: 10px; }
-        .tab-content.active { display: block; }
-		.input-container {
-			display: flex;
-			flex-direction: column;
-			width: 100%;
-			margin-bottom: 10px;	
-		}
 
-		label {
-			margin-bottom: 5px;
-			font-weight: bold;
-		}
-</style>
+            th.resizable {
+                position: relative;
+                cursor: col-resize;
+            }
+
+        tr:nth-child(even) {
+            background: #333;
+        }
+
+        tr:nth-child(odd) {
+            background: #444;
+        }
+
+        .method-description {
+            font-size: 0.9em;
+            color: #bbbbbb;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 10px;
+            width: 80%;
+        }
+
+        .tab {
+            padding: 10px;
+            cursor: pointer;
+            background: #444;
+            color: white;
+            border: 1px solid #555;
+        }
+
+            .tab.active {
+                background: #666;
+            }
+
+        .tab-content {
+            display: none;
+            margin-top: 10px;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
