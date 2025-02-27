@@ -14,10 +14,6 @@ class ItemsModels:
         item_color: str = Field(index=True)
         rating: int = Field(index=True)
 
-    class ItemsPrice(SQLModel):
-        price: float = Field(index=True)
-
-
     class ItemAddedResponse(SQLModel):
         id: int
 

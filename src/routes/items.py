@@ -1,4 +1,4 @@
-from typing import List, Annotated, Any
+from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session
 from sqlmodel import select
