@@ -1,8 +1,9 @@
 import re
-from datetime import date, datetime
+from datetime import datetime
 from fastapi import HTTPException
 from pydantic import field_validator
 from sqlmodel import Field, SQLModel
+
 
 class UsersModels:
     class Users(SQLModel, table=True):
@@ -27,11 +28,13 @@ class UsersModels:
         @field_validator("full_name")
         def validate_full_name(cls, value: str):
             if len(value) < 5 or len(value) > 15:
-                raise HTTPException(status_code=400, detail="login length should be from 5 to 100 characters")
+                raise HTTPException(status_code=400, detail="Full name length should be from 5 to 100 characters")
             full_name_pattern = re.compile(r'^[A-z]{1,30} [A-z]{1,30}$')
             result = full_name_pattern.match(value)
             if not result:
-                raise HTTPException(status_code=400, detail="available only latin letters and space between words")
+                raise HTTPException(status_code=400, detail="Available only latin letters and space between words")
+            if not isinstance(value, str):
+                raise HTTPException(status_code=400, detail="Full name should be Str type")
             return value
 
         @field_validator("email")
@@ -39,11 +42,13 @@ class UsersModels:
             email_pattern = re.compile(r'[A-z\d_\.]{1,25}@[A-z\d_]{1,25}\.[A-z]{2,3}')
             result = email_pattern.match(value)
             if not result:
-                raise HTTPException(status_code=400, detail="wrong email pattern")
+                raise HTTPException(status_code=400, detail="Wrong email pattern")
             if len(value) < 5 or len(value) > 30:
-                raise HTTPException(status_code=400, detail="email length should be from 5 to 30 characters")
+                raise HTTPException(status_code=400, detail="Email length should be from 5 to 30 characters")
             if ' ' in value:
-                raise HTTPException(status_code=400, detail="space in email")
+                raise HTTPException(status_code=400, detail="Space in email")
+            if not isinstance(value, str):
+                raise HTTPException(status_code=400, detail="Email should be Str type")
             return value
 
         @field_validator("phone")
@@ -52,25 +57,29 @@ class UsersModels:
             result = phone_pattern.match(value)
             if not result:
                 raise HTTPException(status_code=400,
-                                    detail="phone pattern is: + and digits from 11 to 15 example: +73423455443")
+                                    detail="Phone pattern is: + and digits from 11 to 15 example: +73423455443")
             if len(value) < 12 or len(value) > 16:
-                raise HTTPException(status_code=400, detail="phone length should be from 12 to 16 characters")
+                raise HTTPException(status_code=400, detail="Phone length should be from 12 to 16 characters")
             if not value[1:].isdigit():
-                raise HTTPException(status_code=400, detail="available only latin letters and digits")
+                raise HTTPException(status_code=400, detail="Available only latin letters and digits")
+            if not isinstance(value, str):
+                raise HTTPException(status_code=400, detail="Phone should be Str type")
             return value
 
         @field_validator("password")
         def validate_password(cls, value: str):
             if len(value) < 5 or len(value) > 20:
-                raise HTTPException(status_code=400, detail="password length should be from 5 to 20 characters")
+                raise HTTPException(status_code=400, detail="Password length should be from 5 to 20 characters")
             if not value.isalnum():
-                raise HTTPException(status_code=400, detail="available only latin letters and digits in password")
+                raise HTTPException(status_code=400, detail="Available only latin letters and digits in password")
             if not any(char.isdigit() for char in value):
-                raise HTTPException(status_code=400, detail="password should have at least one numeral")
+                raise HTTPException(status_code=400, detail="Password should have at least one numeral")
             if not any(char.isupper() for char in value):
-                raise HTTPException(status_code=400, detail="password should have at least one uppercase letter")
+                raise HTTPException(status_code=400, detail="Password should have at least one uppercase letter")
             if not any(char.islower() for char in value):
                 raise HTTPException(status_code=400, detail="Password should have at least one lowercase letter")
+            if not isinstance(value, str):
+                raise HTTPException(status_code=400, detail="Password should be Str type")
             return value
 
     class UsersResponse(SQLModel, table=True):

@@ -67,12 +67,6 @@ async def create_user(user: UsersModels.UserAdd, session: SessionDep):
 
     db_user = UsersModels.Users(**user.model_dump())
 
-    if not db_user.phone:
-        raise HTTPException(status_code=400, detail="Phone is required")
-
-    if not db_user.email:
-        raise HTTPException(status_code=400, detail="Email is required")
-
     if db_user.phone:
         query = select(UsersModels.Users).where(UsersModels.Users.phone == db_user.phone)
         phone_exists = session.exec(query).first() is not None
