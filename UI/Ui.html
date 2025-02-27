@@ -104,7 +104,7 @@
 		</div>
        
         <label for="body">Request Body (JSON):</label>
-        <textarea id="body">{"name": "John Doe", "email": "john@example.com"}</textarea>
+        <textarea id="body">{"username": "JohnDoe", "phone": "+79875554433", "passwor": "DDs?9rqeH$@zz5nd", "email": "johndorgun@example.com"}</textarea>
         <button class="send-btn" onclick="sendRequest()">Send Request</button>
         
         <h2 style="text-align: left; width: 80%;">Response:</h2>
@@ -128,10 +128,10 @@
     <script>
         function updateDescription() {
             const descriptions = {
-                "GET": "GET: Получение списка пользователей из PostgreSQL.",
-                "POST": "POST: Создание нового пользователя.",
-                "PUT": "PUT: Обновление данных пользователя.",
-                "DELETE": "DELETE: Удаление пользователя."
+                "GET": "GET: Getting a list of users from PostgreSQL.",
+                "POST": "POST: Create a new user.",
+                "PUT": "PUT: Update user data.",
+                "DELETE": "DELETE: Delete a user."
             };
             document.getElementById('method-description').textContent = descriptions[document.getElementById('method').value];
         }
@@ -152,10 +152,10 @@
 	<script>
     function updateDescription() {
         const descriptions = {
-            "GET": "GET: Получение списка пользователей из PostgreSQL.",
-            "POST": "POST: Создание нового пользователя.",
-            "PUT": "PUT: Обновление данных пользователя.",
-            "DELETE": "DELETE: Удаление пользователя."
+            "GET": "GET: Getting a list of users from PostgreSQL.",
+            "POST": "POST: Create a new user.",
+            "PUT": "PUT: Update user data.",
+            "DELETE": "DELETE: Delete a user."
         };
         document.getElementById('method-description').textContent = descriptions[document.getElementById('method').value];
     }
@@ -229,14 +229,14 @@
                     });
                 }
             } else {
-                document.querySelector('#table-output tbody').innerHTML = '<tr><td colspan="1">Нет данных для отображения</td></tr>';
+                document.querySelector('#table-output tbody').innerHTML = '<tr><td colspan="1">No data to display</td></tr>';
             }
 
             // Переключение на вкладку JSON по умолчанию
             showTab('json');
         } catch (error) {
             console.error('Ошибка:', error);
-            document.getElementById('response').textContent = 'Произошла ошибка при выполнении запроса.';
+            document.getElementById('response').textContent = 'An error occurred while executing your request.';
         }
     }
 </script>
