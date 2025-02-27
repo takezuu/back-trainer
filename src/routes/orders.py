@@ -1,9 +1,10 @@
 from datetime import datetime
-from typing import List, Annotated, Any
-from fastapi import APIRouter, Depends
+from typing import List, Annotated
+from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel import Session,select
 
 from src.dependencies.orders import order_exists
+from src.dependencies.users import user_exists
 from src.models.items import ItemsModels
 from src.models.orders import OrdersModels
 from src.database import get_session
@@ -62,3 +63,28 @@ async def get_order(session: SessionDep, order = Depends(order_exists)):
     order = order.model_dump()
     order["items"] = items_data
     return order
+
+@router.post("/api/orders", tags=["items"], status_code=status.HTTP_201_CREATED,
+             response_model=OrdersModels.OrderAddedResponse)
+async def create_user(order: OrdersModels.OrderAdd, session: SessionDep):
+    _ = user_exists(order.user_id)
+
+    total_price = 0
+    for item_id in order.items_ids:
+        query = select(ItemsModels.Items.price).where(ItemsModels.Items.id == item_id)
+        item_price = session.exec(query).first()
+        total_price += item_price
+    order_discount = total_price * (order.discount/100)
+    total_price = total_price - order_discount
+
+    order.total_amount = total_price
+    db_order = OrdersModels.Orders(**order.model_dump())
+
+    try:
+        session.add(db_order)
+        session.commit()
+        session.refresh(db_order)
+    except Exception as err:
+        session.rollback()
+        raise HTTPException(status_code=500, detail=f'Failed create an order: {err}')
+    return db_order
