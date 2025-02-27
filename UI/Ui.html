@@ -4,85 +4,161 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REST API Trainer</title>
+    <!--<link rel="icon" type="image/x-icon" href="/static/favicon.ico">-->
     <style>
-        body { 
-            font-family: Arial, sans-serif; 
-            padding: 20px; 
-            background: #1e1e1e; 
+
+        .json-key {
+            color: #ff79c6; /* Розовый для ключей */
+        }
+
+        .json-string {
+            color: #50fa7b; /* Зеленый для строк */
+        }
+
+        .json-number {
+            color: #bd93f9; /* Фиолетовый для чисел */
+        }
+
+        .json-boolean {
+            color: #ffb86c; /* Оранжевый для булевых значений */
+        }
+
+        .json-null {
+            color: #ff5555; /* Красный для null */
+        }
+
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1e1e1e;
             color: #ffffff;
             margin: 0 auto;
             max-width: 1200px;
-            text-align: center;
+            text-align: left;
         }
+
+        #body {
+            height: 224px;
+        }
+
         .container {
             display: flex;
             flex-direction: column;
             align-items: flex-start;
             width: 100%;
         }
+
         .form-group {
             display: flex;
-            justify-content: center;
+            justify-content: left;
             gap: 10px;
             width: 100%;
         }
-        textarea, input, select, button { 
-            width: 100%; 
-            margin-bottom: 10px; 
-            padding: 10px; 
-            background: #2e2e2e; 
-            color: #ffffff; 
-            border: 1px solid #555; 
-            text-align: center;
-			box-sizing: border-box;
+
+        textarea, input, select, button {
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #2e2e2e;
+            color: #ffffff;
+            border: 1px solid #555;
+            text-align: left;
+            box-sizing: border-box;
         }
-        select, input { flex: 1; }
-        button.send-btn { width: 150px; }
-        pre { 
-            background: #2e2e2e; 
-            padding: 10px; 
-            color: #ffffff; 
-            border: 1px solid #555; 
-            width: 100%; max-width: 100%;
+
+        select, input {
+            flex: 1;
+        }
+
+        button.send-btn {
+            width: 150px;
+        }
+
+        pre {
+            background: #2e2e2e;
+            padding: 10px;
+            color: #ffffff;
+            border: 1px solid #555;
+            width: 100%;
+            max-width: 100%;
             text-align: left;
         }
-        table { 
-            width: 80%; 
-            border-collapse: collapse; 
-            margin-top: 10px; 
-            background: #2e2e2e; 
-            color: #ffffff; 
+
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: #2e2e2e;
+            color: #ffffff;
         }
-        th, td { 
-            border: 1px solid #555; 
-            padding: 8px; 
-            text-align: left; 
+
+        th, td {
+            border: 1px solid #555;
+            padding: 8px;
+            text-align: left;
             white-space: nowrap;
         }
-        th.resizable {
-            position: relative;
-            cursor: col-resize;
-        }
-        tr:nth-child(even) { background: #333; }
-        tr:nth-child(odd) { background: #444; }
-        .method-description { font-size: 0.9em; color: #bbbbbb; margin-bottom: 10px; }
-        .tabs { display: flex; justify-content: flex-start; margin-top: 10px; width: 80%; }
-        .tab { padding: 10px; cursor: pointer; background: #444; color: white; border: 1px solid #555; }
-        .tab.active { background: #666; }
-        .tab-content { display: none; margin-top: 10px; }
-        .tab-content.active { display: block; }
-		.input-container {
-			display: flex;
-			flex-direction: column;
-			width: 100%;
-			margin-bottom: 10px;	
-		}
 
-		label {
-			margin-bottom: 5px;
-			font-weight: bold;
-		}
-</style>
+            th.resizable {
+                position: relative;
+                cursor: col-resize;
+            }
+
+        tr:nth-child(even) {
+            background: #333;
+        }
+
+        tr:nth-child(odd) {
+            background: #444;
+        }
+
+        .method-description {
+            font-size: 0.9em;
+            color: #bbbbbb;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 10px;
+            width: 80%;
+        }
+
+        .tab {
+            padding: 10px;
+            cursor: pointer;
+            background: #444;
+            color: white;
+            border: 1px solid #555;
+        }
+
+            .tab.active {
+                background: #666;
+            }
+
+        .tab-content {
+            display: none;
+            margin-top: 10px;
+        }
+
+            .tab-content.active {
+                display: block;
+            }
+
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -104,7 +180,7 @@
 		</div>
        
         <label for="body">Request Body (JSON):</label>
-        <textarea id="body">{"name": "John Doe", "email": "john@example.com"}</textarea>
+        <textarea id="body">{"username": "JohnDoe", "phone": "+79875554433", "password": "FqBXNBnBknx7RFEe", "email": "johndorgun@example.com"}</textarea>
         <button class="send-btn" onclick="sendRequest()">Send Request</button>
         
         <h2 style="text-align: left; width: 80%;">Response:</h2>
@@ -126,12 +202,101 @@
     </div>
     
     <script>
+        // Функция подсветки синтаксиса JSON
+        function highlightJson(json) {
+            if (typeof json !== 'string') {
+                json = JSON.stringify(json, null, 2);
+            }
+
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+-]?\d+)?)/g, (match) => {
+                let cls = '';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key'; // Ключи
+                    } else {
+                        cls = 'json-string'; // Строки
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean'; // Булевы значения
+                } else if (/null/.test(match)) {
+                    cls = 'json-null'; // null
+                } else {
+                    cls = 'json-number'; // Числа
+                }
+                return `<span class="${cls}">${match}</span>`;
+            });
+        }
+
+        // Обновленная функция sendRequest
+        async function sendRequest() {
+            try {
+                const method = document.getElementById('method').value;
+                const endpoint = document.getElementById('endpoint').value;
+                const body = document.getElementById('body').value;
+
+                let options = {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                };
+
+                if (method !== 'GET' && method !== 'DELETE') {
+                    options.body = body;
+                }
+
+                const response = await fetch(endpoint, options);
+                const data = await response.json();
+
+                // Вывод JSON ответа с подсветкой
+                const jsonString = JSON.stringify(data, null, 2);
+                document.getElementById('response').innerHTML = highlightJson(jsonString);
+
+                // Вывод таблицы
+                if (Array.isArray(data)) {
+                    const tableBody = document.querySelector('#table-output tbody');
+                    const tableHeaders = document.querySelector('#table-output thead');
+
+                    tableBody.innerHTML = '';
+                    tableHeaders.innerHTML = '';
+
+                    if (data.length > 0) {
+                        const keys = Object.keys(data[0]);
+                        const headerRow = document.createElement('tr');
+                        keys.forEach(key => {
+                            const th = document.createElement('th');
+                            th.textContent = key;
+                            headerRow.appendChild(th);
+                        });
+                        tableHeaders.appendChild(headerRow);
+
+                        data.forEach(row => {
+                            const tr = document.createElement('tr');
+                            keys.forEach(key => {
+                                const td = document.createElement('td');
+                                td.textContent = row[key] || '';
+                                tr.appendChild(td);
+                            });
+                            tableBody.appendChild(tr);
+                        });
+                    }
+                } else {
+                    document.querySelector('#table-output tbody').innerHTML = '<tr><td colspan="1">No data to display</td></tr>';
+                }
+
+                showTab('json');
+            } catch (error) {
+                console.error('Ошибка:', error);
+                document.getElementById('response').textContent = 'An error occurred while executing your request.';
+            }
+        }
+
         function updateDescription() {
             const descriptions = {
-                "GET": "GET: Получение списка пользователей из PostgreSQL.",
-                "POST": "POST: Создание нового пользователя.",
-                "PUT": "PUT: Обновление данных пользователя.",
-                "DELETE": "DELETE: Удаление пользователя."
+                "GET": "GET: Getting a list of users from PostgreSQL.",
+                "POST": "POST: Create a new user.",
+                "PUT": "PUT: Update user data.",
+                "DELETE": "DELETE: Delete a user."
             };
             document.getElementById('method-description').textContent = descriptions[document.getElementById('method').value];
         }
@@ -149,96 +314,5 @@
 
         document.getElementById("endpoint").value = `http://${getServerIp()}:8000/api/users`;
     </script>
-	<script>
-    function updateDescription() {
-        const descriptions = {
-            "GET": "GET: Получение списка пользователей из PostgreSQL.",
-            "POST": "POST: Создание нового пользователя.",
-            "PUT": "PUT: Обновление данных пользователя.",
-            "DELETE": "DELETE: Удаление пользователя."
-        };
-        document.getElementById('method-description').textContent = descriptions[document.getElementById('method').value];
-    }
-
-    function showTab(tab) {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-        document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
-        document.getElementById(`${tab}-tab`).classList.add('active');
-    }
-
-    function getServerIp() {
-        return window.location.hostname;
-    }
-
-    document.getElementById("endpoint").value = `http://${getServerIp()}:8000/api/users`;
-
-    // Функция для отправки запроса
-    async function sendRequest() {
-        try {
-            const method = document.getElementById('method').value;
-            const endpoint = document.getElementById('endpoint').value;
-            const body = document.getElementById('body').value;
-
-            let options = {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
-
-            if (method !== 'GET' && method !== 'DELETE') {
-                options.body = body;
-            }
-
-            const response = await fetch(endpoint, options);
-            const data = await response.json();
-
-            // Вывод JSON ответа
-            document.getElementById('response').textContent = JSON.stringify(data, null, 2);
-
-            // Вывод таблицы
-            if (Array.isArray(data)) {
-                const tableBody = document.querySelector('#table-output tbody');
-                const tableHeaders = document.querySelector('#table-output thead');
-
-                // Очистка таблицы
-                tableBody.innerHTML = '';
-                tableHeaders.innerHTML = '';
-
-                // Добавление заголовков таблицы
-                if (data.length > 0) {
-                    const keys = Object.keys(data[0]);
-                    const headerRow = document.createElement('tr');
-                    keys.forEach(key => {
-                        const th = document.createElement('th');
-                        th.textContent = key;
-                        headerRow.appendChild(th);
-                    });
-                    tableHeaders.appendChild(headerRow);
-
-                    // Добавление строк таблицы
-                    data.forEach(row => {
-                        const tr = document.createElement('tr');
-                        keys.forEach(key => {
-                            const td = document.createElement('td');
-                            td.textContent = row[key] || '';
-                            tr.appendChild(td);
-                        });
-                        tableBody.appendChild(tr);
-                    });
-                }
-            } else {
-                document.querySelector('#table-output tbody').innerHTML = '<tr><td colspan="1">Нет данных для отображения</td></tr>';
-            }
-
-            // Переключение на вкладку JSON по умолчанию
-            showTab('json');
-        } catch (error) {
-            console.error('Ошибка:', error);
-            document.getElementById('response').textContent = 'Произошла ошибка при выполнении запроса.';
-        }
-    }
-</script>
 </body>
 </html>
