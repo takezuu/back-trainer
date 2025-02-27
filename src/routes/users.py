@@ -1,10 +1,11 @@
 import hashlib
-from typing import List, Annotated
+from typing import List, Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from sqlmodel import Session
 from sqlmodel import select
 
+from src.dependencies.users import user_exists
 from src.models.users import UsersModels
 from src.database import get_session
 
@@ -23,12 +24,10 @@ async def get_users(session: SessionDep,
                     sort: str = "id",
                     order_by: str = "asc",
                     page: int = 1, limit: int = 25):
-
     if page < 1:
         raise HTTPException(status_code=400, detail="Page must be greater than or equl to 1")
     if limit < 1:
         raise HTTPException(status_code=400, detail="Limit must be greater than or equl to 1")
-
 
     users = UsersModels.Users
     query = select(users)
@@ -55,14 +54,12 @@ async def get_users(session: SessionDep,
 
 @router.get("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
             response_model=UsersModels.UsersResponse)
-async def get_user(user_id: int, session: SessionDep):
-    query = select(UsersModels.Users).where(UsersModels.Users.id == user_id)
-    user = session.exec(query).first()
+async def get_user(user: dict[str, Any] = Depends(user_exists)):
     return user
-#TODO DEPENDS CHECK USER EXISTS
 
 
-@router.post("/api/users", tags=["users"], status_code=status.HTTP_201_CREATED, response_model=UsersModels.UserAddedResponse)
+@router.post("/api/users", tags=["users"], status_code=status.HTTP_201_CREATED,
+             response_model=UsersModels.UserAddedResponse)
 async def create_user(user: UsersModels.UserAdd, session: SessionDep):
     salt = "5gz"
     user.password = user.password + salt
