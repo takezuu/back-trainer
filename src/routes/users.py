@@ -54,7 +54,7 @@ async def get_users(session: SessionDep,
 
 @router.get("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
             response_model=UsersModels.UsersResponse)
-async def get_user(user: dict[str, Any] = Depends(user_exists)):
+async def get_user(user = Depends(user_exists)):
     return user
 
 
