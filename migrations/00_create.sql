@@ -1,30 +1,20 @@
 create table users (
 	id SERIAL PRIMARY KEY,
-	username VARCHAR(50),
 	email VARCHAR(50),
-	password_hash VARCHAR(150),
-	ip_address VARCHAR(20),
-	created_at DATE,
-	last_login_time VARCHAR(50),
-	country_code VARCHAR(50),
 	phone VARCHAR(50),
+	full_name VARCHAR(100),
+	password VARCHAR(150),
+	ip_address VARCHAR(20),
+	last_login_time TIMESTAMP,
+	country_code VARCHAR(50),
+	balance INT,
+	can_delete boolean,
 	UNIQUE (email, phone)
 );
 
-create table customers (
-    id SERIAL PRIMARY KEY,
-    user_id INT UNIQUE,
-    first_name VARCHAR(20),
-    last_name VARCHAR(20),
-    address TEXT,
-    contact_phone VARCHAR(20),
-    date_of_birth DATE
-);
-
-
 CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
-    customer_id INT NOT NULL,
+    user_id INT NOT NULL,
     items_ids INT[] NOT NULL,
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     discount FLOAT8 DEFAULT 0.0,
