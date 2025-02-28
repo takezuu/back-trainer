@@ -6,27 +6,25 @@
     <title>REST API Trainer</title>
     <!--<link rel="icon" type="image/x-icon" href="/static/favicon.ico">-->
     <style>
-
         .json-key {
-            color: #ff79c6; /* Розовый для ключей */
+            color: #ff79c6; /* Pink for keys */
         }
 
         .json-string {
-            color: #50fa7b; /* Зеленый для строк */
+            color: #50fa7b; /* Green for strings */
         }
 
         .json-number {
-            color: #bd93f9; /* Фиолетовый для чисел */
+            color: #bd93f9; /* Purple for numbers */
         }
 
         .json-boolean {
-            color: #ffb86c; /* Оранжевый для булевых значений */
+            color: #ffb86c; /* Orange for booleans */
         }
 
         .json-null {
-            color: #ff5555; /* Красный для null */
+            color: #ff5555; /* Red for null */
         }
-
 
         body {
             font-family: Arial, sans-serif;
@@ -47,6 +45,18 @@
             flex-direction: column;
             align-items: flex-start;
             width: 100%;
+        }
+
+        .header-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
         }
 
         .form-group {
@@ -73,8 +83,29 @@
 
         button.send-btn {
             width: 150px;
+            cursor: pointer;
+            transition: background 0.3s; /* Оставлена анимация */
+        }
+
+            button.send-btn:hover {
+                background: #444; /* Серый фон при наведении */
+            }
+
+        /* Стили для кнопки About */
+        .about-btn {
+            width: 150px;
+            padding: 10px;
+            background: #2e2e2e;
+            color: #ffffff;
+            border: 1px solid #555;
+            cursor: pointer;
+            transition: background 0.3s; /* Оставлена анимация */
             text-align: center;
         }
+
+            .about-btn:hover {
+                background: #444; /* Серый фон при наведении */
+            }
 
         pre {
             background: #2e2e2e;
@@ -164,37 +195,40 @@
 </head>
 <body>
     <div class="container">
-        <h1>REST API Trainer</h1>
+        <div class="header-group">
+            <h1>REST API Trainer</h1>
+            <button class="about-btn" onclick="window.location.href='/about'">About</button>
+        </div>
         <div class="form-group">
-			<div class="input-container">
-				<label for="method">HTTP Method:</label>
-				<select id="method" onchange="updateDescription()">
-					<option value="GET">GET</option>
-					<option value="POST">POST</option>
-					<option value="PUT">PUT</option>
-					<option value="DELETE">DELETE</option>
-				</select>
-			</div>
-			<div class="input-container">
-				<label for="endpoint">API Endpoint:</label>
-				<input id="endpoint" type="text">
-			</div>
-		</div>
-       
+            <div class="input-container">
+                <label for="method">HTTP Method:</label>
+                <select id="method" onchange="updateDescription()">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="DELETE">DELETE</option>
+                </select>
+            </div>
+            <div class="input-container">
+                <label for="endpoint">API Endpoint:</label>
+                <input id="endpoint" type="text">
+            </div>
+        </div>
+
         <label for="body">Request Body (JSON):</label>
         <textarea id="body">{"username": "JohnDoe", "phone": "+79875554433", "password": "FqBXNBnBknx7RFEe", "email": "johndorgun@example.com"}</textarea>
         <button class="send-btn" onclick="sendRequest()">Send Request</button>
-        
+
         <h2 style="text-align: left; width: 80%;">Response:</h2>
         <div class="tabs">
             <div class="tab active" data-tab="json" onclick="showTab('json')">JSON</div>
             <div class="tab" data-tab="table" onclick="showTab('table')">Table</div>
         </div>
-        
+
         <div id="json-tab" class="tab-content active">
             <pre id="response" style="text-align: left; width: 100%; max-width: 1000px;"></pre>
         </div>
-        
+
         <div id="table-tab" class="tab-content">
             <table id="table-output">
                 <thead></thead>
@@ -202,9 +236,9 @@
             </table>
         </div>
     </div>
-    
+
     <script>
-        // Функция подсветки синтаксиса JSON
+        // Syntax highlighting for JSON
         function highlightJson(json) {
             if (typeof json !== 'string') {
                 json = JSON.stringify(json, null, 2);
@@ -214,22 +248,22 @@
                 let cls = '';
                 if (/^"/.test(match)) {
                     if (/:$/.test(match)) {
-                        cls = 'json-key'; // Ключи
+                        cls = 'json-key'; // Keys
                     } else {
-                        cls = 'json-string'; // Строки
+                        cls = 'json-string'; // Strings
                     }
                 } else if (/true|false/.test(match)) {
-                    cls = 'json-boolean'; // Булевы значения
+                    cls = 'json-boolean'; // Booleans
                 } else if (/null/.test(match)) {
                     cls = 'json-null'; // null
                 } else {
-                    cls = 'json-number'; // Числа
+                    cls = 'json-number'; // Numbers
                 }
                 return `<span class="${cls}">${match}</span>`;
             });
         }
 
-        // Обновленная функция sendRequest
+        // Updated sendRequest function
         async function sendRequest() {
             try {
                 const method = document.getElementById('method').value;
@@ -250,11 +284,11 @@
                 const response = await fetch(endpoint, options);
                 const data = await response.json();
 
-                // Вывод JSON ответа с подсветкой
+                // Display JSON response with highlighting
                 const jsonString = JSON.stringify(data, null, 2);
                 document.getElementById('response').innerHTML = highlightJson(jsonString);
 
-                // Вывод таблицы
+                // Display table
                 if (Array.isArray(data)) {
                     const tableBody = document.querySelector('#table-output tbody');
                     const tableHeaders = document.querySelector('#table-output thead');
@@ -288,7 +322,7 @@
 
                 showTab('json');
             } catch (error) {
-                console.error('Ошибка:', error);
+                console.error('Error:', error);
                 document.getElementById('response').textContent = 'An error occurred while executing your request.';
             }
         }
