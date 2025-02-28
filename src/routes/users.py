@@ -4,7 +4,7 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from src.dependencies.users import user_exists
-from src.models.users import UsersModels
+from src.models.users import UsersModels, UserPut
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -86,12 +86,49 @@ async def create_user(user: UsersModels.UserAdd, session: SessionDep):
         raise HTTPException(status_code=500, detail=f'Failed create a user: {err}')
     return db_user
 
+
 @router.delete("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK)
 async def delete_user(session: SessionDep, user=Depends(user_exists)):
     try:
         session.delete(user)
         session.commit()
         return {"message": "User deleted successfully"}
+    except Exception as err:
+        session.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
+
+# TODO NEED TO TEST
+@router.patch("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
+              response_model=UsersModels.UsersResponse)
+async def patch_user(session: SessionDep, update_data: UsersModels.UserPatch, user=Depends(user_exists)):
+    try:
+
+        for key, value in update_data.model_dump(exclude_unset=True).items():
+            setattr(user, key, value)
+
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+
+        return {"message": "User updated successfully", "updated_user": user}
+    except Exception as err:
+        session.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
+
+@router.put("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
+            response_model=UsersModels.UserPutResponse)
+async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_exists)):
+    try:
+
+        for key, value in update_data.model_dump(exclude_unset=True).items():
+            setattr(user, key, value)
+
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        return {"message": "User updated successfully", "updated_user": user}
     except Exception as err:
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
