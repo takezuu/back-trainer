@@ -87,9 +87,9 @@ class UsersModels:
         email: str = Field(index=True)
         phone: str = Field(index=True)
         full_name: str = Field(index=True)
-        ip_address: str = Field(index=True)
-        last_login_time: datetime = Field(index=True)
-        country_code: str = Field(index=True)
+        ip_address: str | None = Field(index=True)
+        last_login_time: datetime | None = Field(index=True)
+        country_code: str | None = Field(index=True)
 
     class UserAddedResponse(SQLModel):
         id: int
