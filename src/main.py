@@ -3,14 +3,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, FileResponse
 from src.routes import users, orders, items
 
-
 HTML_PATH = "UI/Ui.html"
 
 app = FastAPI()
 app.include_router(users.router)
 app.include_router(orders.router)
 app.include_router(items.router)
-
 
 
 @app.get("/favicon.ico")
@@ -21,6 +19,7 @@ async def favicon():
 @app.get("/")
 def root():
     return FileResponse(HTML_PATH)
+
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):

@@ -20,7 +20,7 @@ class OrdersModels:
     class OrderAdd(SQLModel):
         user_id: int = Field(index=True)
         items_ids: list[int]  = Field(sa_column=Column(ARRAY(Integer)))
-        order_date: datetime = Field(index=True, default_factory=lambda: datetime.now().replace(microsecond=0))
+        order_date: datetime | None = Field(index=True, default=None)
         discount: float = Field(index=True)
         total_amount: float | None = None
         status: str = Field(index=True)
@@ -36,6 +36,9 @@ class OrdersModels:
 
         @field_validator("items_ids")
         def validate_items_ids(cls, value: list):
+            if len(value) <= 0 or len(value) > 15:
+                raise HTTPException(status_code=400, detail="Array length should be from 1 to 15")
+
             count = 0
             for i in value:
                 if not isinstance(i, int):
@@ -49,7 +52,7 @@ class OrdersModels:
         @field_validator("discount")
         def validate_discount(cls, value: float):
             if  value < 0 or value > 80.0:
-                raise HTTPException(status_code=400, detail="Discount should be more than 1 and less than 80")
+                raise HTTPException(status_code=400, detail="Discount should be more than 0 and less than 80")
             if not isinstance(value, float):
                 raise HTTPException(status_code=400, detail="Discount should be Float type")
             return value

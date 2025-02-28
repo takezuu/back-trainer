@@ -13,15 +13,24 @@ router = APIRouter()
 async def get_items(session: SessionDep,
                     product_name: str = None,
                     price: float = None,
-                    quantity: int = None,
                     category: str = None,
                     item_color: str = None,
                     rating: int = None,
+                    q: str = None,
+                    ge_rating: int = None,
+                    le_rating: int = None,
+                    ge_price: int = None,
+                    le_price: int = None,
                     sort: str = "id",
                     order_by: str = "asc",
                     page: int = 1,
                     limit: int = 25
                     ):
+    if page < 1:
+        raise HTTPException(status_code=400, detail="Page must be greater than or equl to 1")
+    if limit < 1:
+        raise HTTPException(status_code=400, detail="Limit must be greater than or equl to 1")
+
     items = ItemsModels.Items
     query = select(items)
 
@@ -29,14 +38,24 @@ async def get_items(session: SessionDep,
         query = query.where(items.product_name == product_name)
     if price:
         query = query.where(items.price == price)
-    if quantity:
-        query = query.where(items.quantity == quantity)
     if category:
         query = query.where(items.category == category)
     if item_color:
         query = query.where(items.item_color == item_color)
     if rating:
         query = query.where(items.rating == rating)
+    if ge_price:
+        query = query.where(items.price >= ge_price)
+    if le_price:
+        query = query.where(items.price <= ge_price)
+    if ge_rating:
+        query = query.where(items.price >= ge_rating)
+    if le_rating:
+        query = query.where(items.price <= le_rating)
+    if q:
+        query = query.where(
+            (items.description.contains(q)) | (items.category.contains(q)) | (items.item_color.contains(q)) | (
+                items.product_name.contains(q)))
 
     order = getattr(items, sort)
     if order_by == "desc":
