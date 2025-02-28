@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel import Session, select
 
 from src.dependencies.orders import order_exists
-from src.dependencies.users import user_exists
 from src.models.items import ItemsModels
 from src.models.orders import OrdersModels
 from src.database import get_session
@@ -46,7 +45,7 @@ async def get_orders(session: SessionDep,
     if delivery_address:
         query = query.where(orders.delivery_address == delivery_address)
     if item_id:
-        query = query.where(orders.items_id.contains([64]))
+        query = query.where(orders.items_ids.contains([item_id]))
 
     order = getattr(orders, sort)
     if order_by == "desc":
@@ -57,7 +56,7 @@ async def get_orders(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrdersModels.Orders)
+@router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrdersModels.OrdersResponse)
 async def get_order(session: SessionDep, order=Depends(order_exists)):
     items_data = []
     for item_id in order.items_ids:
@@ -68,9 +67,9 @@ async def get_order(session: SessionDep, order=Depends(order_exists)):
             item = item.model_dump()
             items_data.append(item)
 
-    del order.items_ids
+    del order.items_ids # delete old field
     order = order.model_dump()
-    order["items"] = items_data
+    order["items"] = items_data # recreate new
     return order
 
 
