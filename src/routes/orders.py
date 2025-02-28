@@ -107,3 +107,14 @@ async def create_order(order: OrdersModels.OrderAdd, session: SessionDep):
         session.rollback()
         raise HTTPException(status_code=500, detail=f'Failed create an order: {err}')
     return db_order
+
+
+@router.delete("/api/orders/{order_id}", tags=["orders"], status_code=status.HTTP_200_OK)
+async def delete_order(session: SessionDep, order=Depends(order_exists)):
+    try:
+        session.delete(order)
+        session.commit()
+        return {"message": "Order deleted successfully"}
+    except Exception as err:
+        session.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))

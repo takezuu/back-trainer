@@ -90,3 +90,13 @@ async def create_user(item: ItemsModels.ItemAdd, session: SessionDep):
         session.rollback()
         raise HTTPException(status_code=500, detail=f'Failed create an item: {err}')
     return db_item
+
+@router.delete("/api/items/{item_id}", tags=["items"], status_code=status.HTTP_200_OK)
+async def delete_item(session: SessionDep, item=Depends(item_exists)):
+    try:
+        session.delete(item)
+        session.commit()
+        return {"message": "Item deleted successfully"}
+    except Exception as err:
+        session.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
