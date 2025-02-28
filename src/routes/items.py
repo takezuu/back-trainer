@@ -47,11 +47,11 @@ async def get_items(session: SessionDep,
     if ge_price:
         query = query.where(items.price >= ge_price)
     if le_price:
-        query = query.where(items.price <= ge_price)
+        query = query.where(items.price <= le_price)
     if ge_rating:
-        query = query.where(items.price >= ge_rating)
+        query = query.where(items.rating >= ge_rating)
     if le_rating:
-        query = query.where(items.price <= le_rating)
+        query = query.where(items.rating <= le_rating)
     if q:
         query = query.where(
             (items.description.contains(q)) | (items.category.contains(q)) | (items.item_color.contains(q)) | (
