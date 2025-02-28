@@ -1,4 +1,6 @@
 from datetime import datetime
+from typing import Any
+
 from fastapi import HTTPException
 from pydantic import field_validator
 from sqlalchemy import Integer
@@ -38,13 +40,6 @@ class OrdersModels:
         def validate_items_ids(cls, value: list):
             if len(value) <= 0 or len(value) > 15:
                 raise HTTPException(status_code=400, detail="Array length should be from 1 to 15")
-
-            count = 0
-            for i in value:
-                if not isinstance(i, int):
-                    raise HTTPException(status_code=400,
-                                        detail=f"All elements in items_ids should be Int type. Problem in this {count}th element {i}")
-                count += 1
             if not isinstance(value, list):
                 raise HTTPException(status_code=400, detail="Items_ids should be List type")
             return value
@@ -59,7 +54,7 @@ class OrdersModels:
 
         @field_validator("status")
         def validate_status(cls, value: str):
-            if value not in ["pending", "created", "paid", "ready", "delivered", "preparing"]:
+            if value not in ["pending", "created", "paid", "ready", "delivered", "preparing", "active"]:
                 raise HTTPException(status_code=400,
                                     detail="Status can be only: pending, created, paid, ready, delivered, preparing")
             if not isinstance(value, str):
@@ -77,3 +72,13 @@ class OrdersModels:
 
     class OrderAddedResponse(SQLModel):
         id: int
+
+    class OrdersResponse(SQLModel, table=True):
+        id: int = Field(primary_key=True, index=True)
+        user_id: int = Field(index=True)
+        items: list[dict[str, Any]] = Field(sa_column=Column(ARRAY(Integer)))
+        order_date: datetime = Field(index=True)
+        discount: float = Field(index=True)
+        total_amount: float = Field(index=True)
+        status: str = Field(index=True)
+        delivery_address: str = Field(index=True)
