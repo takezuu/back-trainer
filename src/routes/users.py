@@ -1,4 +1,5 @@
 import hashlib
+import json
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
@@ -46,13 +47,14 @@ async def get_users(session: SessionDep,
     query = query.order_by(order)
 
     query = query.offset((page - 1) * limit).limit(limit)
-    return session.exec(query).all()
+    data = session.exec(query).all()
+    return json.dumps(data, indent=4, sort_keys=True)
 
 
 @router.get("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
             response_model=UsersModels.UsersResponse)
 async def get_user(user=Depends(user_exists)):
-    return user
+    return json.dumps(user, indent=4, sort_keys=True)
 
 
 @router.post("/api/users", tags=["users"], status_code=status.HTTP_201_CREATED,
@@ -83,4 +85,4 @@ async def create_user(user: UsersModels.UserAdd, session: SessionDep):
     except Exception as err:
         session.rollback()
         raise HTTPException(status_code=500, detail=f'Failed create a user: {err}')
-    return db_user
+    return json.dumps(db_user, indent=4, sort_keys=True)
