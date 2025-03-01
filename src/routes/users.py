@@ -3,7 +3,8 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from src.dependencies.users import user_exists
-from src.models.users import UserPut, UsersResponse, Users, UserAddedResponse, UserAdd, UserPatch, UserPutResponse
+from src.models.users import UserPut, UsersResponse, Users, UserAddedResponse, UserAdd, UserPatch, UserUpdatedResponse, \
+    UserPatchResponse
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -97,9 +98,8 @@ async def delete_user(session: SessionDep, user=Depends(user_exists)):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
 
-# TODO NEED TO TEST
 @router.patch("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
-              response_model=UsersResponse)
+              response_model=UserUpdatedResponse)
 async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(user_exists)):
     try:
 
@@ -117,7 +117,7 @@ async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(u
 
 
 @router.put("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
-            response_model=UserPutResponse)
+            response_model=UserUpdatedResponse)
 async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_exists)):
     try:
 

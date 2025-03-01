@@ -141,9 +141,9 @@ class UserPut(SQLModel):
         return value
 
 
-class UserPutResponse(SQLModel):
+class UserUpdatedResponse(SQLModel):
     message: str
-    updated_user: UserPut
+    updated_user: UsersResponse
 
 
 class UserAddedResponse(SQLModel):
@@ -154,5 +154,13 @@ class UserPatch(SQLModel):
     email: str | None = None
     phone: str | None = None
     full_name: str | None = None
-    password: str | None = None
-    balance: int | None = None
+
+class UserPatchResponse(SQLModel):
+    id: int
+    email: str
+    phone: str
+    full_name: str
+    ip_address: str
+    last_login_time: datetime
+    balance: int
+    can_delete: bool
