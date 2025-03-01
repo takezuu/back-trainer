@@ -2,14 +2,16 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from src.dependencies.items import item_exists
-from src.models.items import ItemsModels
 from src.database import get_session
+from src.models.items import Items, ItemAdd, ItemAddedResponse
 
 SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/api/items", tags=["items"], response_model=List[ItemsModels.Items])
+
+
+@router.get("/api/items", tags=["items"], response_model=List[Items])
 async def get_items(session: SessionDep,
                     product_name: str = None,
                     price: float = None,
@@ -31,7 +33,7 @@ async def get_items(session: SessionDep,
     if limit < 1:
         raise HTTPException(status_code=400, detail="Limit must be greater than or equl to 1")
 
-    items = ItemsModels.Items
+    items = Items
     query = select(items)
 
     if product_name:
@@ -66,18 +68,19 @@ async def get_items(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/items/{item_id}", tags=["items"], response_model=ItemsModels.Items)
+@router.get("/api/items/{item_id}", tags=["items"], response_model=Items)
 async def get_item(item=Depends(item_exists)):
     return item
 
 
+
 @router.post("/api/items", tags=["items"], status_code=status.HTTP_201_CREATED,
-             response_model=ItemsModels.ItemAddedResponse)
-async def create_user(item: ItemsModels.ItemAdd, session: SessionDep):
-    db_item = ItemsModels.Items(**item.model_dump())
+             response_model=ItemAddedResponse)
+async def create_user(item: ItemAdd, session: SessionDep):
+    db_item = Items(**item.model_dump())
 
     if db_item.product_name:
-        query = select(ItemsModels.Items).where(ItemsModels.Items.product_name == db_item.product_name)
+        query = select(Items).where(Items.product_name == db_item.product_name)
         product_name_exists = session.exec(query).first() is not None
         if product_name_exists:
             raise HTTPException(status_code=409, detail="Product name is already use")
