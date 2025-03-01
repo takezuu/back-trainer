@@ -1,10 +1,9 @@
 import hashlib
-import json
 from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from src.dependencies.users import user_exists
-from src.models.users import UsersModels, UserPut
+from src.models.users import UserPut, UsersResponse, Users, UserAddedResponse, UserAdd, UserPatch, UserPutResponse
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -12,7 +11,7 @@ router = APIRouter()
 
 
 @router.get("/api/users", tags=["users"], status_code=status.HTTP_200_OK,
-            response_model=List[UsersModels.UsersResponse])
+            response_model=List[UsersResponse])
 async def get_users(session: SessionDep,
                     full_name: str = None,
                     email: str = None,
@@ -27,7 +26,7 @@ async def get_users(session: SessionDep,
     if limit < 1:
         raise HTTPException(status_code=400, detail="Limit must be greater than or equl to 1")
 
-    users = UsersModels.Users
+    users = Users
     query = select(users)
 
     if full_name:
@@ -51,28 +50,28 @@ async def get_users(session: SessionDep,
 
 
 @router.get("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
-            response_model=UsersModels.UsersResponse)
+            response_model=UsersResponse)
 async def get_user(user=Depends(user_exists)):
     return user
 
 
 @router.post("/api/users", tags=["users"], status_code=status.HTTP_201_CREATED,
-             response_model=UsersModels.UserAddedResponse)
-async def create_user(user: UsersModels.UserAdd, session: SessionDep):
+             response_model=UserAddedResponse)
+async def create_user(user: UserAdd, session: SessionDep):
     salt = "5gz"
     user.password = user.password + salt
     user.password = hashlib.md5(user.password.encode()).hexdigest()
 
-    db_user = UsersModels.Users(**user.model_dump())
+    db_user = Users(**user.model_dump())
 
     if db_user.phone:
-        query = select(UsersModels.Users).where(UsersModels.Users.phone == db_user.phone)
+        query = select(Users).where(Users.phone == db_user.phone)
         phone_exists = session.exec(query).first() is not None
         if phone_exists:
             raise HTTPException(status_code=409, detail="Phone is already use")
 
     if db_user.email:
-        query = select(UsersModels.Users).where(UsersModels.Users.email == db_user.email)
+        query = select(Users).where(Users.email == db_user.email)
         email_exists = session.exec(query).first() is not None
         if email_exists:
             raise HTTPException(status_code=409, detail="Email is already use")
@@ -100,8 +99,8 @@ async def delete_user(session: SessionDep, user=Depends(user_exists)):
 
 # TODO NEED TO TEST
 @router.patch("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
-              response_model=UsersModels.UsersResponse)
-async def patch_user(session: SessionDep, update_data: UsersModels.UserPatch, user=Depends(user_exists)):
+              response_model=UsersResponse)
+async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(user_exists)):
     try:
 
         for key, value in update_data.model_dump(exclude_unset=True).items():
@@ -118,7 +117,7 @@ async def patch_user(session: SessionDep, update_data: UsersModels.UserPatch, us
 
 
 @router.put("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
-            response_model=UsersModels.UserPutResponse)
+            response_model=UserPutResponse)
 async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_exists)):
     try:
 

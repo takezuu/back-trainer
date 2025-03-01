@@ -4,16 +4,16 @@ from fastapi import APIRouter, Depends, status, HTTPException
 from sqlmodel import Session, select
 
 from src.dependencies.orders import order_exists
-from src.models.items import ItemsModels
-from src.models.orders import OrdersModels
+from src.models.items import Items
+from src.models.orders import Orders, OrderAddedResponse, OrderAdd, OrdersResponse
 from src.database import get_session
-from src.models.users import UsersModels
+from src.models.users import Users
 
 SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/api/orders", tags=["orders"], response_model=List[OrdersModels.Orders])
+@router.get("/api/orders", tags=["orders"], response_model=List[Orders])
 async def get_orders(session: SessionDep,
                      order_date: datetime = None,
                      discount: float = None,
@@ -31,7 +31,7 @@ async def get_orders(session: SessionDep,
     if limit < 1:
         raise HTTPException(status_code=400, detail="Limit must be greater than or equl to 1")
 
-    orders = OrdersModels.Orders
+    orders = Orders
     query = select(orders)
 
     if order_date:
@@ -56,11 +56,11 @@ async def get_orders(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrdersModels.OrdersResponse)
+@router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrdersResponse)
 async def get_order(session: SessionDep, order=Depends(order_exists)):
     items_data = []
     for item_id in order.items_ids:
-        items = ItemsModels.Items
+        items = Items
         query = select(items).where(items.id == item_id)
         item = session.exec(query).first()
         if item:
@@ -74,9 +74,9 @@ async def get_order(session: SessionDep, order=Depends(order_exists)):
 
 
 @router.post("/api/orders", tags=["orders"], status_code=status.HTTP_201_CREATED,
-             response_model=OrdersModels.OrderAddedResponse)
-async def create_order(order: OrdersModels.OrderAdd, session: SessionDep):
-    query = select(UsersModels.Users).where(UsersModels.Users.id == order.user_id)
+             response_model=OrderAddedResponse)
+async def create_order(order: OrderAdd, session: SessionDep):
+    query = select(Users).where(Users.id == order.user_id)
     user = session.exec(query).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -88,7 +88,7 @@ async def create_order(order: OrdersModels.OrderAdd, session: SessionDep):
 
     total_price = 0
     for item_id in order.items_ids:
-        query = select(ItemsModels.Items.price).where(ItemsModels.Items.id == item_id)
+        query = select(Items.price).where(Items.id == item_id)
         item_price = session.exec(query).first()
         if not item_price:
             raise HTTPException(status_code=404, detail="Item not found")
@@ -97,7 +97,7 @@ async def create_order(order: OrdersModels.OrderAdd, session: SessionDep):
     total_price = total_price - order_discount
 
     order.total_amount = total_price
-    db_order = OrdersModels.Orders(**order.model_dump())
+    db_order = Orders(**order.model_dump())
 
     try:
         session.add(db_order)
