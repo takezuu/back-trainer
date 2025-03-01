@@ -89,6 +89,15 @@ class ItemAdd(SQLModel):
         return value
 
 
-class ItemPutResponse(SQLModel):
+class ItemUpdatedResponse(SQLModel):
     message: str
     updated_item: Items
+
+class ItemsPatch(SQLModel):
+    product_name: str | None = Field(index=True, default=None)
+    description: str | None = Field(index=True, default=None)
+    price: float | None = Field(index=True, default=None)
+    quantity: int | None = Field(index=True, default=None)
+    category: str | None = Field(index=True, default=None)
+    item_color: str | None = Field(index=True, default=None)
+    rating: int | None = Field(index=True, default=None)
