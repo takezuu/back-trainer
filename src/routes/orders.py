@@ -5,7 +5,8 @@ from sqlmodel import Session, select
 
 from src.dependencies.orders import order_exists
 from src.models.items import Items
-from src.models.orders import Orders, OrderAddedResponse, OrderAdd, OrdersResponse, OrderPut, OrderPutResponse
+from src.models.orders import Orders, OrderAddedResponse, OrderAdd, OrdersResponse, OrderPut, OrderUpdatedResponse, \
+    OrderPatch
 from src.database import get_session
 from src.models.users import Users
 
@@ -119,9 +120,47 @@ async def delete_order(session: SessionDep, order=Depends(order_exists)):
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
+@router.patch("/api/orders/{order_id}", tags=["orders"], status_code=status.HTTP_200_OK,
+            response_model=OrderUpdatedResponse)
+async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depends(order_exists)):
+    try:
+        if update_data.user_id:
+            query = select(Users).where(Users.id == update_data.user_id)
+            user = session.exec(query).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+        if update_data.discount is None:
+            update_data.discount = order.discount
+
+
+        if update_data.items_ids:
+            total_price = 0
+            for item_id in update_data.items_ids:
+                query = select(Items.price).where(Items.id == item_id)
+                item_price = session.exec(query).first()
+                if not item_price:
+                    raise HTTPException(status_code=404, detail=f"Item not found id:{item_id}")
+                total_price += item_price
+            order_discount = total_price * (update_data.discount / 100)
+            total_price = total_price - order_discount
+            update_data.total_amount = total_price
+            update_data = Orders(**update_data.model_dump())
+
+        for key, value in update_data.model_dump(exclude_unset=True).items():
+            setattr(order, key, value)
+
+        session.add(order)
+        session.commit()
+        session.refresh(order)
+        return {"message": "Order updated successfully", "updated_order": order}
+    except Exception as err:
+        session.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
 @router.put("/api/orders/{order_id}", tags=["orders"], status_code=status.HTTP_200_OK,
-            response_model=OrderPutResponse)
-async def put_user(session: SessionDep, update_data: OrderPut, order=Depends(order_exists)):
+            response_model=OrderUpdatedResponse)
+async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(order_exists)):
     try:
         query = select(Users).where(Users.id == update_data.user_id)
         user = session.exec(query).first()

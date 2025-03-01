@@ -85,6 +85,7 @@ class OrdersResponse(SQLModel):
     status: str
     delivery_address: str
 
+
 class OrderPut(SQLModel):
     user_id: int = Field(index=True)
     items_ids: list[int] = Field(sa_column=Column(ARRAY(Integer)))
@@ -135,6 +136,58 @@ class OrderPut(SQLModel):
             raise HTTPException(status_code=400, detail="Delivery address should be Str type")
         return value
 
-class OrderPutResponse(SQLModel):
+
+class OrderUpdatedResponse(SQLModel):
     message: str
     updated_order: OrderPut
+
+
+class OrderPatch(SQLModel):
+    user_id: int | None = Field(index=True, default=None)
+    items_ids: list[int] | None = Field(sa_column=Column(ARRAY(Integer)), default=None)
+    discount: float | None = Field(index=True, default=None)
+    total_amount: float | None = Field(index=True, default=None)
+    status: str | None = Field(index=True, default=None)
+    delivery_address: str | None = Field(index=True, default=None)
+
+    @field_validator("user_id")
+    def validate_user_id(cls, value: int):
+        if value < 1:
+            raise HTTPException(status_code=400, detail="Id should be greater than 0")
+        if not isinstance(value, int):
+            raise HTTPException(status_code=400, detail="User_id should be Int type")
+        return value
+
+    @field_validator("items_ids")
+    def validate_items_ids(cls, value: list):
+        if len(value) <= 0 or len(value) > 15:
+            raise HTTPException(status_code=400, detail="Array length should be from 1 to 15")
+        if not isinstance(value, list):
+            raise HTTPException(status_code=400, detail="Items_ids should be List type")
+        return value
+
+    @field_validator("discount")
+    def validate_discount(cls, value: float):
+        if value < 0 or value > 80.0:
+            raise HTTPException(status_code=400, detail="Discount should be more than 0 and less than 80")
+        if not isinstance(value, float):
+            raise HTTPException(status_code=400, detail="Discount should be Float type")
+        return value
+
+    @field_validator("status")
+    def validate_status(cls, value: str):
+        if value not in ["pending", "created", "paid", "ready", "delivered", "preparing", "active"]:
+            raise HTTPException(status_code=400,
+                                detail="Status can be only: pending, created, paid, ready, delivered, preparing")
+        if not isinstance(value, str):
+            raise HTTPException(status_code=400, detail="Status should be Str type")
+        return value
+
+    @field_validator("delivery_address")
+    def validate_delivery_address(cls, value: str):
+        if len(value) < 1 or len(value) > 200:
+            raise HTTPException(status_code=400,
+                                detail="Delivery address length should be from 1 to 200 characters")
+        if not isinstance(value, str):
+            raise HTTPException(status_code=400, detail="Delivery address should be Str type")
+        return value
