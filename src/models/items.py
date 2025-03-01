@@ -3,7 +3,6 @@ from pydantic import field_validator
 from sqlmodel import Field, SQLModel
 
 
-
 class Items(SQLModel, table=True):
     id: int = Field(primary_key=True, index=True)
     product_name: str = Field(index=True)
@@ -14,8 +13,10 @@ class Items(SQLModel, table=True):
     item_color: str = Field(index=True)
     rating: int = Field(index=True)
 
+
 class ItemAddedResponse(SQLModel):
     id: int
+
 
 class ItemAdd(SQLModel):
     product_name: str = Field(index=True)
@@ -86,3 +87,8 @@ class ItemAdd(SQLModel):
         if not isinstance(value, int):
             raise HTTPException(status_code=400, detail="Rating should be Int type")
         return value
+
+
+class ItemPutResponse(SQLModel):
+    message: str
+    updated_item: Items
