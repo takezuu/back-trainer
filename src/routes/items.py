@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from src.dependencies.items import item_exists
 from src.database import get_session
-from src.models.items import Items, ItemAdd, ItemAddedResponse, ItemPutResponse
+from src.models.items import Items, ItemAdd, ItemAddedResponse, ItemUpdatedResponse, ItemsPatch
 
 SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
@@ -104,9 +104,27 @@ async def delete_item(session: SessionDep, item=Depends(item_exists)):
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
+# TODO NEED TO TEST
+@router.patch("/api/items/{item_id}", tags=["items"], status_code=status.HTTP_200_OK,
+              response_model=ItemUpdatedResponse)
+async def patch_item(session: SessionDep, update_data: ItemsPatch, item=Depends(item_exists)):
+    try:
+
+        for key, value in update_data.model_dump(exclude_unset=True).items():
+            setattr(item, key, value)
+
+        session.add(item)
+        session.commit()
+        session.refresh(item)
+
+        return {"message": "Item updated successfully", "updated_item": item}
+    except Exception as err:
+        session.rollback()
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
 @router.put("/api/items/{item_id}", tags=["items"], status_code=status.HTTP_200_OK,
-            response_model=ItemPutResponse)
-async def put_user(session: SessionDep, update_data: Items, item=Depends(item_exists)):
+            response_model=ItemUpdatedResponse)
+async def put_item(session: SessionDep, update_data: Items, item=Depends(item_exists)):
     try:
 
         for key, value in update_data.model_dump(exclude_unset=True).items():
