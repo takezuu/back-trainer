@@ -5,7 +5,7 @@ from sqlmodel import Session, select
 
 from src.dependencies.orders import order_exists
 from src.models.items import Items
-from src.models.orders import Orders, OrderAddedResponse, OrderAdd, OrdersResponse, OrderPut, OrderUpdatedResponse, \
+from src.models.orders import Orders, OrderAddedResponse, OrderAdd, OrderPut, OrderUpdatedResponse, \
     OrderPatch
 from src.database import get_session
 from src.models.users import Users
@@ -19,7 +19,7 @@ async def get_orders(session: SessionDep,
                      order_date: datetime = None,
                      discount: float = None,
                      total_amount: float = None,
-                     status: str = None,
+                     order_status: str = None,
                      delivery_address: str = None,
                      item_id: int = None,
                      sort: str = "id",
@@ -41,8 +41,8 @@ async def get_orders(session: SessionDep,
         query = query.where(orders.discount == discount)
     if total_amount:
         query = query.where(orders.total_amount == total_amount)
-    if status:
-        query = query.where(orders.status == status)
+    if order_status:
+        query = query.where(orders.order_status == order_status)
     if delivery_address:
         query = query.where(orders.delivery_address == delivery_address)
     if item_id:
@@ -57,7 +57,7 @@ async def get_orders(session: SessionDep,
     return session.exec(query).all()
 
 
-@router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrdersResponse)
+@router.get("/api/orders/{order_id}", tags=["orders"], response_model=Orders)
 async def get_order(session: SessionDep, order=Depends(order_exists)):
     items_data = []
     for item_id in order.items_ids:

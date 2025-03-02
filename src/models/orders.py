@@ -75,17 +75,6 @@ class OrderAddedResponse(SQLModel):
     id: int
 
 
-class OrdersResponse(SQLModel):
-    id: int
-    user_id: int
-    items: list[dict[str, Any]] = Field(sa_column=Column(ARRAY(Integer)))
-    order_date: datetime
-    discount: float
-    total_amount: float
-    status: str
-    delivery_address: str
-
-
 class OrderPut(SQLModel):
     user_id: int = Field(index=True)
     items_ids: list[int] = Field(sa_column=Column(ARRAY(Integer)))
@@ -139,7 +128,7 @@ class OrderPut(SQLModel):
 
 class OrderUpdatedResponse(SQLModel):
     message: str
-    updated_order: OrderPut
+    updated_order: Orders
 
 
 class OrderPatch(SQLModel):
