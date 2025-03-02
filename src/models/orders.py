@@ -65,12 +65,13 @@ class OrderAdd(SQLModel):
 
     @field_validator("status")
     def validate_status(cls, value: str):
-        if value not in ["pending", "created", "paid", "ready", "delivered", "preparing", "active"]:
+        if value not in ["created", "paid", "preparing", "ready", "in delivery", "delivered"]:
             raise HTTPException(status_code=400,
                                 detail="Status can be only: pending, created, paid, ready, delivered, preparing")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Status should be Str type")
         return value
+
 
     @field_validator("delivery_address")
     def validate_delivery_address(cls, value: str):

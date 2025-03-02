@@ -93,6 +93,7 @@ class ItemUpdatedResponse(SQLModel):
     message: str
     updated_item: Items
 
+
 class ItemsPatch(SQLModel):
     product_name: str | None = Field(index=True, default=None)
     description: str | None = Field(index=True, default=None)
@@ -163,6 +164,7 @@ class ItemsPatch(SQLModel):
             raise HTTPException(status_code=400, detail="Rating should be Int type")
         return value
 
+
 class ItemsPut(SQLModel):
     product_name: str = Field(index=True)
     description: str = Field(index=True)
@@ -232,7 +234,3 @@ class ItemsPut(SQLModel):
         if not isinstance(value, int):
             raise HTTPException(status_code=400, detail="Rating should be Int type")
         return value
-
-
-
-
