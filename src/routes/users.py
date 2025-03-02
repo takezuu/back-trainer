@@ -89,9 +89,11 @@ async def create_user(user: UserAdd, session: SessionDep):
 @router.delete("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK)
 async def delete_user(session: SessionDep, user=Depends(user_exists)):
     try:
-        session.delete(user)
-        session.commit()
-        return {"message": "User deleted successfully"}
+        if user.can_delete:
+            session.delete(user)
+            session.commit()
+            return {"message": "User deleted successfully"}
+        return {"message": "User can't be deleted"}
     except Exception as err:
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
