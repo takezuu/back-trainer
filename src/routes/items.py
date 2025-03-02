@@ -104,7 +104,6 @@ async def delete_item(session: SessionDep, item=Depends(item_exists)):
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
-# TODO NEED TO TEST
 @router.patch("/api/items/{item_id}", tags=["items"], status_code=status.HTTP_200_OK,
               response_model=ItemUpdatedResponse)
 async def patch_item(session: SessionDep, update_data: ItemsPatch, item=Depends(item_exists)):
