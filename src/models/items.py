@@ -164,13 +164,13 @@ class ItemsPatch(SQLModel):
         return value
 
 class ItemsPut(SQLModel):
-    product_name: str | None = Field(index=True, default=None)
-    description: str | None = Field(index=True, default=None)
-    price: float | None = Field(index=True, default=None)
-    quantity: int | None = Field(index=True, default=None)
-    category: str | None = Field(index=True, default=None)
-    item_color: str | None = Field(index=True, default=None)
-    rating: int | None = Field(index=True, default=None)
+    product_name: str = Field(index=True)
+    description: str = Field(index=True)
+    price: float = Field(index=True)
+    quantity: int = Field(index=True)
+    category: str = Field(index=True)
+    item_color: str = Field(index=True)
+    rating: int = Field(index=True)
 
     @field_validator("product_name")
     def validate_product_name(cls, value: str):

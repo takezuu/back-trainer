@@ -149,8 +149,8 @@ class UserPut(SQLModel):
             raise HTTPException(status_code=400, detail="Phone should be Str type")
         return value
 
-    @field_validator("county_code")
-    def validate_full_name(cls, value: str):
+    @field_validator("country_code")
+    def validate_country_code(cls, value: str):
         if len(value) > 5:
             raise HTTPException(status_code=400, detail="County code length should be less than 5")
         if not isinstance(value, str):
@@ -214,8 +214,8 @@ class UserPatch(SQLModel):
             raise HTTPException(status_code=400, detail="Phone should be Str type")
         return value
 
-    @field_validator("county_code")
-    def validate_full_name(cls, value: str):
+    @field_validator("country_code")
+    def validate_country_code(cls, value: str):
         if len(value) > 5:
             raise HTTPException(status_code=400, detail="County code length should be less than 5")
         if not isinstance(value, str):
