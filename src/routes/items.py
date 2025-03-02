@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from src.dependencies.items import item_exists
 from src.database import get_session
-from src.models.items import Items, ItemAdd, ItemAddedResponse, ItemUpdatedResponse, ItemsPatch
+from src.models.items import Items, ItemAdd, ItemAddedResponse, ItemUpdatedResponse, ItemsPatch, ItemsPut
 
 SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
@@ -104,7 +104,6 @@ async def delete_item(session: SessionDep, item=Depends(item_exists)):
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
-# TODO NEED TO TEST
 @router.patch("/api/items/{item_id}", tags=["items"], status_code=status.HTTP_200_OK,
               response_model=ItemUpdatedResponse)
 async def patch_item(session: SessionDep, update_data: ItemsPatch, item=Depends(item_exists)):
@@ -124,7 +123,7 @@ async def patch_item(session: SessionDep, update_data: ItemsPatch, item=Depends(
 
 @router.put("/api/items/{item_id}", tags=["items"], status_code=status.HTTP_200_OK,
             response_model=ItemUpdatedResponse)
-async def put_item(session: SessionDep, update_data: Items, item=Depends(item_exists)):
+async def put_item(session: SessionDep, update_data: ItemsPut, item=Depends(item_exists)):
     try:
 
         for key, value in update_data.model_dump(exclude_unset=True).items():

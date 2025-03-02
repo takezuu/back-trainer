@@ -19,6 +19,17 @@ class Orders(SQLModel, table=True):
     delivery_address: str = Field(index=True)
 
 
+class OrderResponse(SQLModel, table=True):
+    id: int = Field(primary_key=True, index=True)
+    user_id: int = Field(index=True)
+    items: list[dict] = Field(sa_column=Column(ARRAY(Integer)))
+    order_date: datetime = Field(index=True)
+    discount: float = Field(index=True)
+    total_amount: float = Field(index=True)
+    status: str = Field(index=True)
+    delivery_address: str = Field(index=True)
+
+
 class OrderAdd(SQLModel):
     user_id: int = Field(index=True)
     items_ids: list[int] = Field(sa_column=Column(ARRAY(Integer)))
@@ -75,32 +86,12 @@ class OrderAddedResponse(SQLModel):
     id: int
 
 
-class OrdersResponse(SQLModel):
-    id: int
-    user_id: int
-    items: list[dict[str, Any]] = Field(sa_column=Column(ARRAY(Integer)))
-    order_date: datetime
-    discount: float
-    total_amount: float
-    status: str
-    delivery_address: str
-
-
 class OrderPut(SQLModel):
-    user_id: int = Field(index=True)
     items_ids: list[int] = Field(sa_column=Column(ARRAY(Integer)))
     discount: float = Field(index=True)
     total_amount: float | None = Field(index=True, default=None)
     status: str = Field(index=True)
     delivery_address: str = Field(index=True)
-
-    @field_validator("user_id")
-    def validate_user_id(cls, value: int):
-        if value < 1:
-            raise HTTPException(status_code=400, detail="Id should be greater than 0")
-        if not isinstance(value, int):
-            raise HTTPException(status_code=400, detail="User_id should be Int type")
-        return value
 
     @field_validator("items_ids")
     def validate_items_ids(cls, value: list):
@@ -139,24 +130,15 @@ class OrderPut(SQLModel):
 
 class OrderUpdatedResponse(SQLModel):
     message: str
-    updated_order: OrderPut
+    updated_order: Orders
 
 
 class OrderPatch(SQLModel):
-    user_id: int | None = Field(index=True, default=None)
     items_ids: list[int] | None = Field(sa_column=Column(ARRAY(Integer)), default=None)
     discount: float | None = Field(index=True, default=None)
     total_amount: float | None = Field(index=True, default=None)
     status: str | None = Field(index=True, default=None)
     delivery_address: str | None = Field(index=True, default=None)
-
-    @field_validator("user_id")
-    def validate_user_id(cls, value: int):
-        if value < 1:
-            raise HTTPException(status_code=400, detail="Id should be greater than 0")
-        if not isinstance(value, int):
-            raise HTTPException(status_code=400, detail="User_id should be Int type")
-        return value
 
     @field_validator("items_ids")
     def validate_items_ids(cls, value: list):

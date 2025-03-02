@@ -3,8 +3,7 @@ from typing import List, Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel import Session, select
 from src.dependencies.users import user_exists
-from src.models.users import UserPut, UsersResponse, Users, UserAddedResponse, UserAdd, UserPatch, UserUpdatedResponse, \
-    UserPatchResponse
+from src.models.users import UserPut, UsersResponse, Users, UserAddedResponse, UserAdd, UserPatch, UserUpdatedResponse
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
