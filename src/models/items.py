@@ -232,3 +232,7 @@ class ItemsPut(SQLModel):
         if not isinstance(value, int):
             raise HTTPException(status_code=400, detail="Rating should be Int type")
         return value
+
+
+
+
