@@ -75,9 +75,9 @@ async def get_order(session: SessionDep, order=Depends(order_exists)):
             item = item.model_dump()
             items_data.append(item)
 
-    del order.items_ids # delete old field
+    del order.items_ids  # delete old field
     order = order.model_dump()
-    order["items"] = items_data # recreate new
+    order["items"] = items_data  # recreate new
 
     return order
 
@@ -128,14 +128,13 @@ async def delete_order(session: SessionDep, order=Depends(order_exists)):
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
+
 @router.patch("/api/orders/{order_id}", tags=["orders"], status_code=status.HTTP_200_OK,
-            response_model=OrderUpdatedResponse)
+              response_model=OrderUpdatedResponse)
 async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depends(order_exists)):
     try:
-        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
         if update_data.discount is None:
             update_data.discount = order.discount
-
 
         if update_data.items_ids:
             total_price = 0
@@ -156,16 +155,17 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
         session.add(order)
         session.commit()
         session.refresh(order)
+        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "Order updated successfully", "updated_order": order}
     except Exception as err:
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
+
 @router.put("/api/orders/{order_id}", tags=["orders"], status_code=status.HTTP_200_OK,
             response_model=OrderUpdatedResponse)
 async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(order_exists)):
     try:
-        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
         if not update_data.items_ids:
             raise HTTPException(status_code=400, detail="Items array should have at least one element")
         total_price = 0
@@ -187,6 +187,7 @@ async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(or
         session.add(order)
         session.commit()
         session.refresh(order)
+        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "Order updated successfully", "updated_order": order}
     except Exception as err:
         session.rollback()
