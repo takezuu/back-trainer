@@ -57,14 +57,16 @@ async def get_orders(session: SessionDep,
 
     orders = session.exec(query).all()
     for order in orders:
-        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
+        if order.order_date:
+            order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
 
     return orders
 
 
 @router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrderResponse)
 async def get_order(session: SessionDep, order=Depends(order_exists)):
-    order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
+    if order.order_date:
+        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
 
     items_data = []
     for item_id in order.items_ids:
@@ -155,7 +157,9 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
         session.add(order)
         session.commit()
         session.refresh(order)
-        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
+
+        if order.order_date:
+            order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "Order updated successfully", "updated_order": order}
     except Exception as err:
         session.rollback()
@@ -187,7 +191,9 @@ async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(or
         session.add(order)
         session.commit()
         session.refresh(order)
-        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
+
+        if order.order_date:
+            order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "Order updated successfully", "updated_order": order}
     except Exception as err:
         session.rollback()
