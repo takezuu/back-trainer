@@ -109,7 +109,7 @@ async def delete_user(session: SessionDep, user=Depends(user_exists)):
               response_model=UserUpdatedResponse)
 async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(user_exists)):
     try:
-        user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
+
         for key, value in update_data.model_dump(exclude_unset=True).items():
             setattr(user, key, value)
 
@@ -117,6 +117,7 @@ async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(u
         session.commit()
         session.refresh(user)
 
+        user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "User updated successfully", "updated_user": user}
     except Exception as err:
         session.rollback()
@@ -127,13 +128,14 @@ async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(u
             response_model=UserUpdatedResponse)
 async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_exists)):
     try:
-        user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
         for key, value in update_data.model_dump(exclude_unset=True).items():
             setattr(user, key, value)
 
         session.add(user)
         session.commit()
         session.refresh(user)
+
+        user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "User updated successfully", "updated_user": user}
     except Exception as err:
         session.rollback()
