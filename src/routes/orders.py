@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 from src.dependencies.orders import order_exists
 from src.models.items import Items
 from src.models.orders import Orders, OrderAddedResponse, OrderAdd, OrderPut, OrderUpdatedResponse, \
-    OrderPatch, OrderResponse
+    OrderPatch, OrderResponse, OrdersResponse
 from src.database import get_session
 from src.models.users import Users
 
@@ -14,7 +14,7 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-@router.get("/api/orders", tags=["orders"], response_model=List[Orders])
+@router.get("/api/orders", tags=["orders"], response_model=List[OrdersResponse])
 async def get_orders(session: SessionDep,
                      order_date: datetime = None,
                      discount: float = None,
@@ -54,11 +54,18 @@ async def get_orders(session: SessionDep,
     query = query.order_by(order)
 
     query = query.offset((page - 1) * limit).limit(limit)
-    return session.exec(query).all()
+
+    orders = session.exec(query).all()
+    for order in orders:
+        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
+
+    return orders
 
 
 @router.get("/api/orders/{order_id}", tags=["orders"], response_model=OrderResponse)
 async def get_order(session: SessionDep, order=Depends(order_exists)):
+    order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
+
     items_data = []
     for item_id in order.items_ids:
         items = Items
@@ -71,6 +78,7 @@ async def get_order(session: SessionDep, order=Depends(order_exists)):
     del order.items_ids # delete old field
     order = order.model_dump()
     order["items"] = items_data # recreate new
+
     return order
 
 
@@ -124,6 +132,7 @@ async def delete_order(session: SessionDep, order=Depends(order_exists)):
             response_model=OrderUpdatedResponse)
 async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depends(order_exists)):
     try:
+        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
         if update_data.discount is None:
             update_data.discount = order.discount
 
@@ -156,6 +165,7 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
             response_model=OrderUpdatedResponse)
 async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(order_exists)):
     try:
+        order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
         if not update_data.items_ids:
             raise HTTPException(status_code=400, detail="Items array should have at least one element")
         total_price = 0

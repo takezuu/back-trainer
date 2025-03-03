@@ -83,7 +83,7 @@ class UsersResponse(SQLModel):
     phone: str
     full_name: str
     ip_address: str | None
-    last_login_time: datetime | None
+    last_login_time: str | None
     country_code: str | None
     balance: int | None
     can_delete: bool

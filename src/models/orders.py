@@ -18,12 +18,22 @@ class Orders(SQLModel, table=True):
     status: str = Field(index=True)
     delivery_address: str = Field(index=True)
 
+class OrdersResponse(SQLModel, table=True):
+    id: int = Field(primary_key=True, index=True)
+    user_id: int = Field(index=True)
+    items_ids: list[int] = Field(sa_column=Column(ARRAY(Integer)))
+    order_date: str = Field(index=True)
+    discount: float = Field(index=True)
+    total_amount: float = Field(index=True)
+    status: str = Field(index=True)
+    delivery_address: str = Field(index=True)
+
 
 class OrderResponse(SQLModel, table=True):
     id: int = Field(primary_key=True, index=True)
     user_id: int = Field(index=True)
     items: list[dict] = Field(sa_column=Column(ARRAY(Integer)))
-    order_date: datetime = Field(index=True)
+    order_date: str = Field(index=True)
     discount: float = Field(index=True)
     total_amount: float = Field(index=True)
     status: str = Field(index=True)
@@ -131,7 +141,7 @@ class OrderPut(SQLModel):
 
 class OrderUpdatedResponse(SQLModel):
     message: str
-    updated_order: Orders
+    updated_order: OrdersResponse
 
 
 class OrderPatch(SQLModel):
