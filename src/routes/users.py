@@ -109,6 +109,17 @@ async def delete_user(session: SessionDep, user=Depends(user_exists)):
               response_model=UserUpdatedResponse)
 async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(user_exists)):
     try:
+        if update_data.phone:
+            query = select(Users).where(Users.phone == update_data.phone)
+            phone_exists = session.exec(query).first() is not None
+            if phone_exists:
+                raise HTTPException(status_code=409, detail="Phone is already use")
+
+        if update_data.email:
+            query = select(Users).where(Users.email == update_data.email)
+            email_exists = session.exec(query).first() is not None
+            if email_exists:
+                raise HTTPException(status_code=409, detail="Email is already use")
 
         for key, value in update_data.model_dump(exclude_unset=True).items():
             setattr(user, key, value)
@@ -128,6 +139,18 @@ async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(u
             response_model=UserUpdatedResponse)
 async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_exists)):
     try:
+        if update_data.phone:
+            query = select(Users).where(Users.phone == update_data.phone)
+            phone_exists = session.exec(query).first() is not None
+            if phone_exists:
+                raise HTTPException(status_code=409, detail="Phone is already use")
+
+        if update_data.email:
+            query = select(Users).where(Users.email == update_data.email)
+            email_exists = session.exec(query).first() is not None
+            if email_exists:
+                raise HTTPException(status_code=409, detail="Email is already use")
+
         for key, value in update_data.model_dump(exclude_unset=True).items():
             setattr(user, key, value)
 
