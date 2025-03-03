@@ -46,12 +46,18 @@ async def get_users(session: SessionDep,
     query = query.order_by(order)
 
     query = query.offset((page - 1) * limit).limit(limit)
-    return session.exec(query).all()
+
+    users = session.exec(query).all()
+    for user in users:
+        user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    return users
 
 
 @router.get("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
             response_model=UsersResponse)
 async def get_user(user=Depends(user_exists)):
+    user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
     return user
 
 
@@ -89,9 +95,11 @@ async def create_user(user: UserAdd, session: SessionDep):
 @router.delete("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK)
 async def delete_user(session: SessionDep, user=Depends(user_exists)):
     try:
-        session.delete(user)
-        session.commit()
-        return {"message": "User deleted successfully"}
+        if user.can_delete:
+            session.delete(user)
+            session.commit()
+            return {"message": "User deleted successfully"}
+        return {"message": "User can't be deleted"}
     except Exception as err:
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
@@ -101,7 +109,7 @@ async def delete_user(session: SessionDep, user=Depends(user_exists)):
               response_model=UserUpdatedResponse)
 async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(user_exists)):
     try:
-
+        user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
         for key, value in update_data.model_dump(exclude_unset=True).items():
             setattr(user, key, value)
 
@@ -119,7 +127,7 @@ async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(u
             response_model=UserUpdatedResponse)
 async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_exists)):
     try:
-
+        user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
         for key, value in update_data.model_dump(exclude_unset=True).items():
             setattr(user, key, value)
 

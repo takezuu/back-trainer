@@ -9,8 +9,6 @@ SessionDep = Annotated[Session, Depends(get_session)]
 router = APIRouter()
 
 
-
-
 @router.get("/api/items", tags=["items"], response_model=List[Items])
 async def get_items(session: SessionDep,
                     product_name: str = None,
@@ -73,7 +71,6 @@ async def get_item(item=Depends(item_exists)):
     return item
 
 
-
 @router.post("/api/items", tags=["items"], status_code=status.HTTP_201_CREATED,
              response_model=ItemAddedResponse)
 async def create_user(item: ItemAdd, session: SessionDep):
@@ -94,6 +91,7 @@ async def create_user(item: ItemAdd, session: SessionDep):
         raise HTTPException(status_code=500, detail=f'Failed create an item: {err}')
     return db_item
 
+
 @router.delete("/api/items/{item_id}", tags=["items"], status_code=status.HTTP_200_OK)
 async def delete_item(session: SessionDep, item=Depends(item_exists)):
     try:
@@ -103,6 +101,7 @@ async def delete_item(session: SessionDep, item=Depends(item_exists)):
     except Exception as err:
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
+
 
 @router.patch("/api/items/{item_id}", tags=["items"], status_code=status.HTTP_200_OK,
               response_model=ItemUpdatedResponse)
@@ -121,6 +120,7 @@ async def patch_item(session: SessionDep, update_data: ItemsPatch, item=Depends(
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
 
+
 @router.put("/api/items/{item_id}", tags=["items"], status_code=status.HTTP_200_OK,
             response_model=ItemUpdatedResponse)
 async def put_item(session: SessionDep, update_data: ItemsPut, item=Depends(item_exists)):
@@ -136,5 +136,3 @@ async def put_item(session: SessionDep, update_data: ItemsPut, item=Depends(item
     except Exception as err:
         session.rollback()
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(err))
-
-

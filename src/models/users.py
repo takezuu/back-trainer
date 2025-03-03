@@ -27,59 +27,46 @@ class UserAdd(SQLModel):
 
     @field_validator("full_name")
     def validate_full_name(cls, value: str):
-        if len(value) < 5 or len(value) > 15:
-            raise HTTPException(status_code=400, detail="Full name length should be from 5 to 100 characters")
-        full_name_pattern = re.compile(r'^[A-z]{1,30} [A-z]{1,30}$')
+        full_name_pattern = re.compile(r'[A-Za-z]{1,30} [A-Za-z]{1,30}$')
         result = full_name_pattern.match(value)
         if not result:
-            raise HTTPException(status_code=400, detail="Available only latin letters and space between words")
+            raise HTTPException(status_code=400,
+                                detail="Full name must be two words with Latin letters, 5-15 characters total")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Full name should be Str type")
         return value
 
     @field_validator("email")
     def validate_email(cls, value: str):
-        email_pattern = re.compile(r'[A-z\d_\.]{1,25}@[A-z\d_]{1,25}\.[A-z]{2,3}')
+        email_pattern = re.compile(r'^[A-Za-z\d._]{1,25}@[A-Za-z\d_]{1,25}\.[A-Za-z]{2,3}$')
         result = email_pattern.match(value)
         if not result:
-            raise HTTPException(status_code=400, detail="Wrong email pattern")
-        if len(value) < 5 or len(value) > 30:
-            raise HTTPException(status_code=400, detail="Email length should be from 5 to 30 characters")
-        if ' ' in value:
-            raise HTTPException(status_code=400, detail="Space in email")
+            raise HTTPException(status_code=400, detail="Invalid email format (e.g., user@domain.com)")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Email should be Str type")
         return value
 
-    @field_validator("phone")
-    def validate_phone(cls, value: str):
-        phone_pattern = re.compile(r"\+\d{11,15}")
-        result = phone_pattern.match(value)
+    @field_validator("password")
+    def validate_password(cls, value: str):
+        password_pattern = re.compile(r"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z\d]{5,20}$")
+        result = password_pattern.match(value)
         if not result:
             raise HTTPException(status_code=400,
                                 detail="Phone pattern is: + and digits from 11 to 15 example: +73423455443")
-        if len(value) < 12 or len(value) > 16:
-            raise HTTPException(status_code=400, detail="Phone length should be from 12 to 16 characters")
-        if not value[1:].isdigit():
-            raise HTTPException(status_code=400, detail="Available only latin letters and digits")
         if not isinstance(value, str):
-            raise HTTPException(status_code=400, detail="Phone should be Str type")
+            raise HTTPException(status_code=400,
+                                detail="Password must be 5-20 characters long and contain at least one number, one uppercase and one lowercase letter")
         return value
 
-    @field_validator("password")
-    def validate_password(cls, value: str):
-        if len(value) < 5 or len(value) > 20:
-            raise HTTPException(status_code=400, detail="Password length should be from 5 to 20 characters")
-        if not value.isalnum():
-            raise HTTPException(status_code=400, detail="Available only latin letters and digits in password")
-        if not any(char.isdigit() for char in value):
-            raise HTTPException(status_code=400, detail="Password should have at least one numeral")
-        if not any(char.isupper() for char in value):
-            raise HTTPException(status_code=400, detail="Password should have at least one uppercase letter")
-        if not any(char.islower() for char in value):
-            raise HTTPException(status_code=400, detail="Password should have at least one lowercase letter")
+    @field_validator("phone")
+    def validate_phone(cls, value: str):
+        phone_pattern = re.compile(r"^\+\d{11,15}$")
+        result = phone_pattern.match(value)
+        if not result:
+            raise HTTPException(status_code=400,
+                                detail="Phone must start with + followed by 11-15 digits (e.g., +73423455443)")
         if not isinstance(value, str):
-            raise HTTPException(status_code=400, detail="Password should be Str type")
+            raise HTTPException(status_code=400, detail="Phone should be Str type")
         return value
 
     @field_validator("can_delete")
@@ -96,7 +83,7 @@ class UsersResponse(SQLModel):
     phone: str
     full_name: str
     ip_address: str | None
-    last_login_time: datetime | None
+    last_login_time: str | None
     country_code: str | None
     balance: int | None
     can_delete: bool
@@ -110,41 +97,32 @@ class UserPut(SQLModel):
 
     @field_validator("full_name")
     def validate_full_name(cls, value: str):
-        if len(value) < 5 or len(value) > 15:
-            raise HTTPException(status_code=400, detail="Full name length should be from 5 to 100 characters")
-        full_name_pattern = re.compile(r'^[A-z]{1,30} [A-z]{1,30}$')
+        full_name_pattern = re.compile(r'[A-Za-z]{1,30} [A-Za-z]{1,30}$')
         result = full_name_pattern.match(value)
         if not result:
-            raise HTTPException(status_code=400, detail="Available only latin letters and space between words")
+            raise HTTPException(status_code=400,
+                                detail="Full name must be two words with Latin letters, 5-15 characters total")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Full name should be Str type")
         return value
 
     @field_validator("email")
     def validate_email(cls, value: str):
-        email_pattern = re.compile(r'[A-z\d_\.]{1,25}@[A-z\d_]{1,25}\.[A-z]{2,3}')
+        email_pattern = re.compile(r'^[A-Za-z\d._]{1,25}@[A-Za-z\d_]{1,25}\.[A-Za-z]{2,3}$')
         result = email_pattern.match(value)
         if not result:
-            raise HTTPException(status_code=400, detail="Wrong email pattern")
-        if len(value) < 5 or len(value) > 30:
-            raise HTTPException(status_code=400, detail="Email length should be from 5 to 30 characters")
-        if ' ' in value:
-            raise HTTPException(status_code=400, detail="Space in email")
+            raise HTTPException(status_code=400, detail="Invalid email format (e.g., user@domain.com)")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Email should be Str type")
         return value
 
     @field_validator("phone")
     def validate_phone(cls, value: str):
-        phone_pattern = re.compile(r"\+\d{11,15}")
+        phone_pattern = re.compile(r"^\+\d{11,15}$")
         result = phone_pattern.match(value)
         if not result:
             raise HTTPException(status_code=400,
-                                detail="Phone pattern is: + and digits from 11 to 15 example: +73423455443")
-        if len(value) < 12 or len(value) > 16:
-            raise HTTPException(status_code=400, detail="Phone length should be from 12 to 16 characters")
-        if not value[1:].isdigit():
-            raise HTTPException(status_code=400, detail="Available only latin letters and digits")
+                                detail="Phone must start with + followed by 11-15 digits (e.g., +73423455443)")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Phone should be Str type")
         return value
@@ -175,41 +153,31 @@ class UserPatch(SQLModel):
 
     @field_validator("full_name")
     def validate_full_name(cls, value: str):
-        if len(value) < 5 or len(value) > 15:
-            raise HTTPException(status_code=400, detail="Full name length should be from 5 to 100 characters")
-        full_name_pattern = re.compile(r'^[A-z]{1,30} [A-z]{1,30}$')
+        full_name_pattern = re.compile(r'[A-Za-z]{1,30} [A-Za-z]{1,30}$')
         result = full_name_pattern.match(value)
         if not result:
-            raise HTTPException(status_code=400, detail="Available only latin letters and space between words")
+            raise HTTPException(status_code=400, detail="Full name must be two words with Latin letters, 5-15 characters total")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Full name should be Str type")
         return value
 
     @field_validator("email")
     def validate_email(cls, value: str):
-        email_pattern = re.compile(r'[A-z\d_\.]{1,25}@[A-z\d_]{1,25}\.[A-z]{2,3}')
+        email_pattern = re.compile(r'^[A-Za-z\d._]{1,25}@[A-Za-z\d_]{1,25}\.[A-Za-z]{2,3}$')
         result = email_pattern.match(value)
         if not result:
-            raise HTTPException(status_code=400, detail="Wrong email pattern")
-        if len(value) < 5 or len(value) > 30:
-            raise HTTPException(status_code=400, detail="Email length should be from 5 to 30 characters")
-        if ' ' in value:
-            raise HTTPException(status_code=400, detail="Space in email")
+            raise HTTPException(status_code=400, detail="Invalid email format (e.g., user@domain.com)")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Email should be Str type")
         return value
 
     @field_validator("phone")
     def validate_phone(cls, value: str):
-        phone_pattern = re.compile(r"\+\d{11,15}")
+        phone_pattern = re.compile(r"^\+\d{11,15}$")
         result = phone_pattern.match(value)
         if not result:
             raise HTTPException(status_code=400,
-                                detail="Phone pattern is: + and digits from 11 to 15 example: +73423455443")
-        if len(value) < 12 or len(value) > 16:
-            raise HTTPException(status_code=400, detail="Phone length should be from 12 to 16 characters")
-        if not value[1:].isdigit():
-            raise HTTPException(status_code=400, detail="Available only latin letters and digits")
+                                detail="Phone must start with + followed by 11-15 digits (e.g., +73423455443)")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Phone should be Str type")
         return value
@@ -221,4 +189,3 @@ class UserPatch(SQLModel):
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="County code should be Str type")
         return value
-

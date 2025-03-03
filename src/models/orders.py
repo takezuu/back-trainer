@@ -18,12 +18,22 @@ class Orders(SQLModel, table=True):
     status: str = Field(index=True)
     delivery_address: str = Field(index=True)
 
+class OrdersResponse(SQLModel, table=True):
+    id: int = Field(primary_key=True, index=True)
+    user_id: int = Field(index=True)
+    items_ids: list[int] = Field(sa_column=Column(ARRAY(Integer)))
+    order_date: str = Field(index=True)
+    discount: float = Field(index=True)
+    total_amount: float = Field(index=True)
+    status: str = Field(index=True)
+    delivery_address: str = Field(index=True)
+
 
 class OrderResponse(SQLModel, table=True):
     id: int = Field(primary_key=True, index=True)
     user_id: int = Field(index=True)
     items: list[dict] = Field(sa_column=Column(ARRAY(Integer)))
-    order_date: datetime = Field(index=True)
+    order_date: str = Field(index=True)
     discount: float = Field(index=True)
     total_amount: float = Field(index=True)
     status: str = Field(index=True)
@@ -65,12 +75,13 @@ class OrderAdd(SQLModel):
 
     @field_validator("status")
     def validate_status(cls, value: str):
-        if value not in ["pending", "created", "paid", "ready", "delivered", "preparing", "active"]:
+        if value not in ["created", "paid", "preparing", "ready", "in delivery", "delivered"]:
             raise HTTPException(status_code=400,
                                 detail="Status can be only: pending, created, paid, ready, delivered, preparing")
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Status should be Str type")
         return value
+
 
     @field_validator("delivery_address")
     def validate_delivery_address(cls, value: str):
@@ -130,7 +141,7 @@ class OrderPut(SQLModel):
 
 class OrderUpdatedResponse(SQLModel):
     message: str
-    updated_order: Orders
+    updated_order: OrdersResponse
 
 
 class OrderPatch(SQLModel):
