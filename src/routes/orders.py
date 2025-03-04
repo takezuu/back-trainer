@@ -136,23 +136,32 @@ async def delete_order(session: SessionDep, order=Depends(order_exists)):
 async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depends(order_exists)):
     try:
         if update_data.discount is None:
-            update_data.discount = order.discount
+            discount = order.discount
+        else:
+            discount = update_data.discount
 
-        if update_data.items_ids:
+        if update_data.items_ids is None:
+            items_ids = order.items_ids
+        else:
+            items_ids = update_data.items_ids
+
+        if update_data.discount is not None or update_data.items_ids is not None:
             total_price = 0
-            for item_id in update_data.items_ids:
+            for item_id in items_ids:
                 query = select(Items.price).where(Items.id == item_id)
                 item_price = session.exec(query).first()
                 if not item_price:
                     raise HTTPException(status_code=404, detail=f"Item not found id:{item_id}")
                 total_price += item_price
-            order_discount = total_price * (update_data.discount / 100)
+            order_discount = total_price * (discount / 100)
             total_price = total_price - order_discount
             update_data.total_amount = total_price
-            update_data = Orders(**update_data.model_dump())
+
+        update_data = Orders(**update_data.model_dump())
 
         for key, value in update_data.model_dump(exclude_unset=True).items():
-            setattr(order, key, value)
+            if value is not None:
+                setattr(order, key, value)
 
         session.add(order)
         session.commit()

@@ -109,7 +109,8 @@ async def patch_item(session: SessionDep, update_data: ItemsPatch, item=Depends(
     try:
 
         for key, value in update_data.model_dump(exclude_unset=True).items():
-            setattr(item, key, value)
+            if value is not None:
+                setattr(item, key, value)
 
         session.add(item)
         session.commit()
