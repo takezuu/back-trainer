@@ -125,7 +125,8 @@ async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(u
                 raise HTTPException(status_code=409, detail="Email is already use")
 
         for key, value in update_data.model_dump(exclude_unset=True).items():
-            setattr(user, key, value)
+            if value is not None:
+                setattr(user, key, value)
 
         session.add(user)
         session.commit()
