@@ -135,8 +135,10 @@ class UserPut(SQLModel):
     def validate_country_code(cls, value: str):
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="County code should be Str type")
-        if len(value) > 5:
-            raise HTTPException(status_code=400, detail="County code length should be less than 5")
+        if len(value) > 3:
+            raise HTTPException(status_code=400, detail="County code length should be less than 3")
+        if value.isalpha():
+            raise HTTPException(status_code=400, detail="County code should have only latin letters")
         return value
 
 
@@ -190,6 +192,8 @@ class UserPatch(SQLModel):
     def validate_country_code(cls, value: str):
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="County code should be Str type")
-        if len(value) > 5:
-            raise HTTPException(status_code=400, detail="County code length should be less than 5")
+        if len(value) > 3:
+            raise HTTPException(status_code=400, detail="County code length should be less than 3")
+        if value.isalpha():
+            raise HTTPException(status_code=400, detail="County code should have only latin letters")
         return value
