@@ -76,7 +76,6 @@ class UserAdd(SQLModel):
         value = True
         return value
 
-
 class UsersResponse(SQLModel):
     id: int
     email: str
@@ -87,6 +86,10 @@ class UsersResponse(SQLModel):
     country_code: str | None
     balance: int | None
     can_delete: bool
+
+class UserResponse(UsersResponse):
+    completed_orders: list[int] | None
+    uncompleted_orders: list[int] | None
 
 
 class UserPut(SQLModel):
