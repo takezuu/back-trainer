@@ -150,6 +150,7 @@ async def delete_order(session: SessionDep, order=Depends(order_exists)):
               response_model=OrderUpdatedResponse)
 async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depends(order_exists)):
     try:
+
         if update_data.discount is None:
             discount = order.discount
         else:
@@ -161,8 +162,8 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
             items_ids = update_data.items_ids
 
         old_items_dict = {f"{item_id}": order.items_ids.count(item_id) for item_id in order.items_ids}
-        cureent_items_dict = {f"{item_id}": items_ids.count(item_id) for item_id in items_ids}
-        zipped_dict = old_items_dict | cureent_items_dict
+        curent_items_dict = {f"{item_id}": items_ids.count(item_id) for item_id in items_ids}
+        zipped_dict = old_items_dict | curent_items_dict
 
         if update_data.discount is not None or update_data.items_ids is not None:
             total_price = 0
@@ -172,8 +173,10 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
                 query = select(Items).where(Items.id == item_id)
                 item = session.exec(query).first()
 
-                if item is None:
+                if item is None and str(item_id) in curent_items_dict:
                     raise HTTPException(status_code=404, detail=f"Item not found id:{item_id}")
+                elif item is None and str(item_id) in old_items_dict:
+                    continue
 
                 if str(item_id) in old_items_dict:
                     old_value = old_items_dict[f"{item_id}"]
@@ -185,20 +188,19 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
                     item.quantity += difference
 
                 elif old_value < item_quantity_in_items_ids:
+                    if item.quantity == 0:
+                        raise HTTPException(status_code=404,
+                                            detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock in the warehouse")
                     difference = item_quantity_in_items_ids - old_value
                     item.quantity -= difference
 
-                if item.quantity <= 0:
-                    raise HTTPException(status_code=404,
-                                        detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock in the warehouse")
-                else:
-                    try:
-                        session.add(item)
-                        session.commit()
-                        session.refresh(item)
-                    except Exception as err:
-                        session.rollback()
-                        raise HTTPException(status_code=500, detail=f'Update item quantity: {err}')
+                try:
+                    session.add(item)
+                    session.commit()
+                    session.refresh(item)
+                except Exception as err:
+                    session.rollback()
+                    raise HTTPException(status_code=500, detail=f'Update item quantity: {err}')
 
                 total_price += item.price
             order_discount = total_price * (discount / 100)
@@ -225,8 +227,8 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
 async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(order_exists)):
     try:
         old_items_dict = {f"{item_id}": order.items_ids.count(item_id) for item_id in order.items_ids}
-        cureent_items_dict = {f"{item_id}": update_data.items_ids.count(item_id) for item_id in update_data.items_ids}
-        zipped_dict = old_items_dict | cureent_items_dict
+        curent_items_dict = {f"{item_id}": update_data.items_ids.count(item_id) for item_id in update_data.items_ids}
+        zipped_dict = old_items_dict | curent_items_dict
 
         if not update_data.items_ids:
             raise HTTPException(status_code=400, detail="Items array should have at least one element")
@@ -237,8 +239,10 @@ async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(or
             query = select(Items).where(Items.id == item_id)
             item = session.exec(query).first()
 
-            if item is None:
+            if item is None and str(item_id) in curent_items_dict:
                 raise HTTPException(status_code=404, detail=f"Item not found id:{item_id}")
+            elif item is None and str(item_id) in old_items_dict:
+                continue
 
             if str(item_id) in old_items_dict:
                 old_value = old_items_dict[f"{item_id}"]
@@ -253,17 +257,20 @@ async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(or
                 difference = item_quantity_in_items_ids - old_value
                 item.quantity -= difference
 
-            if item.quantity <= 0:
-                raise HTTPException(status_code=404,
-                                    detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock in the warehouse")
-            else:
-                try:
-                    session.add(item)
-                    session.commit()
-                    session.refresh(item)
-                except Exception as err:
-                    session.rollback()
-                    raise HTTPException(status_code=500, detail=f'Update item quantity: {err}')
+            elif old_value < item_quantity_in_items_ids:
+                if item.quantity == 0:
+                    raise HTTPException(status_code=404,
+                                        detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock in the warehouse")
+                difference = item_quantity_in_items_ids - old_value
+                item.quantity -= difference
+
+            try:
+                session.add(item)
+                session.commit()
+                session.refresh(item)
+            except Exception as err:
+                session.rollback()
+                raise HTTPException(status_code=500, detail=f'Update item quantity: {err}')
 
             total_price += item.price
 
