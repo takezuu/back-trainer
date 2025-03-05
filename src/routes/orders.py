@@ -42,7 +42,7 @@ async def get_orders(session: SessionDep,
     if total_amount:
         query = query.where(orders.total_amount == total_amount)
     if order_status:
-        query = query.where(orders.order_status == order_status)
+        query = query.where(orders.status == order_status)
     if delivery_address:
         query = query.where(orders.delivery_address == delivery_address)
     if item_id:
