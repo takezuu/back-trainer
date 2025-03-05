@@ -161,13 +161,16 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
             items_ids = update_data.items_ids
 
         old_items_dict = {f"{item_id}": order.items_ids.count(item_id) for item_id in order.items_ids}
+        cureent_items_dict = {f"{item_id}": items_ids.count(item_id) for item_id in items_ids}
 
         if update_data.discount is not None or update_data.items_ids is not None:
             total_price = 0
-            for item_id in items_ids:
-                item_quantity_in_items_ids = order.items_ids.count(item_id)
+            for item_id, count_item_value in cureent_items_dict.items():
+                item_id = int(item_id)
+                item_quantity_in_items_ids = items_ids.count(item_id)
                 query = select(Items).where(Items.id == item_id)
                 item = session.exec(query).first()
+
                 if item.price is None:
                     raise HTTPException(status_code=404, detail=f"Item not found id:{item_id}")
 
@@ -178,7 +181,6 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
                 elif old_value < item_quantity_in_items_ids:
                     difference = item_quantity_in_items_ids - old_value
                     item.quantity -= difference
-
                 if item.quantity <= 0:
                     raise HTTPException(status_code=404,
                                         detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock in the warehouse")
@@ -195,17 +197,14 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
             order_discount = total_price * (discount / 100)
             total_price = total_price - order_discount
             update_data.total_amount = total_price
-
         update_data = Orders(**update_data.model_dump())
 
         for key, value in update_data.model_dump(exclude_unset=True).items():
             if value is not None:
                 setattr(order, key, value)
-
         session.add(order)
         session.commit()
         session.refresh(order)
-
         if order.order_date:
             order.order_date = order.order_date.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "Order updated successfully", "updated_order": order}
@@ -219,11 +218,13 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
 async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(order_exists)):
     try:
         old_items_dict = {f"{item_id}": order.items_ids.count(item_id) for item_id in order.items_ids}
+        cureent_items_dict = {f"{item_id}": update_data.items_ids.count(item_id) for item_id in update_data.items_ids}
 
         if not update_data.items_ids:
             raise HTTPException(status_code=400, detail="Items array should have at least one element")
         total_price = 0
-        for item_id in update_data.items_ids:
+        for item_id, count_item_value in cureent_items_dict.items():
+            item_id = int(item_id)
             item_quantity_in_items_ids = order.items_ids.count(item_id)
             query = select(Items).where(Items.id == item_id)
             item = session.exec(query).first()
