@@ -162,25 +162,32 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
 
         old_items_dict = {f"{item_id}": order.items_ids.count(item_id) for item_id in order.items_ids}
         cureent_items_dict = {f"{item_id}": items_ids.count(item_id) for item_id in items_ids}
+        zipped_dict = old_items_dict | cureent_items_dict
 
         if update_data.discount is not None or update_data.items_ids is not None:
             total_price = 0
-            for item_id, count_item_value in cureent_items_dict.items():
+            for item_id in zipped_dict.keys():
                 item_id = int(item_id)
                 item_quantity_in_items_ids = items_ids.count(item_id)
                 query = select(Items).where(Items.id == item_id)
                 item = session.exec(query).first()
 
-                if item.price is None:
+                if item is None:
                     raise HTTPException(status_code=404, detail=f"Item not found id:{item_id}")
 
-                old_value = old_items_dict[f"{item_id}"]
-                if  old_value > item_quantity_in_items_ids:
+                if str(item_id) in old_items_dict:
+                    old_value = old_items_dict[f"{item_id}"]
+                else:
+                    old_value = 0
+
+                if old_value > item_quantity_in_items_ids:
                     difference = old_value - item_quantity_in_items_ids
                     item.quantity += difference
+
                 elif old_value < item_quantity_in_items_ids:
                     difference = item_quantity_in_items_ids - old_value
                     item.quantity -= difference
+
                 if item.quantity <= 0:
                     raise HTTPException(status_code=404,
                                         detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock in the warehouse")
@@ -219,22 +226,29 @@ async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(or
     try:
         old_items_dict = {f"{item_id}": order.items_ids.count(item_id) for item_id in order.items_ids}
         cureent_items_dict = {f"{item_id}": update_data.items_ids.count(item_id) for item_id in update_data.items_ids}
+        zipped_dict = old_items_dict | cureent_items_dict
 
         if not update_data.items_ids:
             raise HTTPException(status_code=400, detail="Items array should have at least one element")
         total_price = 0
-        for item_id, count_item_value in cureent_items_dict.items():
+        for item_id in zipped_dict.keys():
             item_id = int(item_id)
             item_quantity_in_items_ids = order.items_ids.count(item_id)
             query = select(Items).where(Items.id == item_id)
             item = session.exec(query).first()
-            if item.price is None:
+
+            if item is None:
                 raise HTTPException(status_code=404, detail=f"Item not found id:{item_id}")
 
-            old_value = old_items_dict[f"{item_id}"]
+            if str(item_id) in old_items_dict:
+                old_value = old_items_dict[f"{item_id}"]
+            else:
+                old_value = 0
+
             if old_value > item_quantity_in_items_ids:
                 difference = old_value - item_quantity_in_items_ids
                 item.quantity += difference
+
             elif old_value < item_quantity_in_items_ids:
                 difference = item_quantity_in_items_ids - old_value
                 item.quantity -= difference
