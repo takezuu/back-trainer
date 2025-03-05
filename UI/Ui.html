@@ -269,6 +269,7 @@
         // Updated sendRequest function
         async function sendRequest() {
             try {
+				document.getElementById('response').style.visibility = 'hidden';
                 const method = document.getElementById('method').value;
                 const endpoint = document.getElementById('endpoint').value;
                 const body = document.getElementById('body').value;
@@ -283,13 +284,14 @@
                 if (method !== 'GET' && method !== 'DELETE') {
                     options.body = body;
                 }
-
+				
                 const response = await fetch(endpoint, options);
                 const data = await response.json();
 
                 // Display JSON response with highlighting
                 const jsonString = JSON.stringify(data, null, 2);
                 document.getElementById('response').innerHTML = highlightJson(jsonString);
+				document.getElementById('response').style.visibility = '';
 
                 // Display table
                 if (Array.isArray(data)) {
@@ -358,7 +360,10 @@
             if (event.key === 'Enter' && event.shiftKey &&
                 document.activeElement.tagName !== 'BUTTON') {
                 event.preventDefault();
-                sendRequest();
+				setTimeout(function() {
+					sendRequest();
+				}, 100);
+                
             }
         });
     </script>
