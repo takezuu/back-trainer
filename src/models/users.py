@@ -21,6 +21,7 @@ class UserAdd(SQLModel):
     email: str = Field(index=True)
     phone: str = Field(index=True)
     password: str = Field(index=True)
+    ip_address: str | None = Field(index=True, default=True)
     can_delete: bool | None = Field(index=True, default=True)
 
     @field_validator("full_name")
@@ -74,6 +75,7 @@ class UserAdd(SQLModel):
         value = True
         return value
 
+
 class UsersResponse(SQLModel):
     id: int
     email: str
@@ -82,10 +84,6 @@ class UsersResponse(SQLModel):
     ip_address: str | None
     country_code: str | None
     can_delete: bool
-
-class UserResponse(UsersResponse):
-    completed_orders: list[int] | None
-    uncompleted_orders: list[int] | None
 
 
 class UserPut(SQLModel):
@@ -160,7 +158,8 @@ class UserPatch(SQLModel):
         full_name_pattern = re.compile(r'[A-Za-z]{1,30} [A-Za-z]{1,30}$')
         result = full_name_pattern.match(value)
         if not result:
-            raise HTTPException(status_code=400, detail="Full name must be two words with Latin letters, 5-15 characters total")
+            raise HTTPException(status_code=400,
+                                detail="Full name must be two words with Latin letters, 5-15 characters total")
         return value
 
     @field_validator("email")
