@@ -192,7 +192,11 @@ async def patch_order(session: SessionDep, update_data: OrderPatch, order=Depend
                         raise HTTPException(status_code=404,
                                             detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock in the warehouse")
                     difference = item_quantity_in_items_ids - old_value
+                    available = item.quantity
                     item.quantity -= difference
+                    if item.quantity <= 0:
+                        raise HTTPException(status_code=404,
+                                            detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock: {available} in the warehouse")
 
                 try:
                     session.add(item)
@@ -257,12 +261,18 @@ async def put_order(session: SessionDep, update_data: OrderPut, order=Depends(or
                 difference = item_quantity_in_items_ids - old_value
                 item.quantity -= difference
 
+
             elif old_value < item_quantity_in_items_ids:
                 if item.quantity == 0:
                     raise HTTPException(status_code=404,
                                         detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock in the warehouse")
                 difference = item_quantity_in_items_ids - old_value
+                available = item.quantity
                 item.quantity -= difference
+
+                if item.quantity <= 0:
+                    raise HTTPException(status_code=404,
+                                        detail=f"Requested quantity for item with ID {item_id} in the order exceeds the available stock: {available} in the warehouse")
 
             try:
                 session.add(item)
