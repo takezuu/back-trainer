@@ -48,9 +48,6 @@ async def get_users(session: SessionDep,
     query = query.offset((page - 1) * limit).limit(limit)
 
     users = session.exec(query).all()
-    for user in users:
-        if user.last_login_time:
-            user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
 
     return users
 
@@ -132,8 +129,6 @@ async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(u
         session.commit()
         session.refresh(user)
 
-        if user.last_login_time:
-            user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "User updated successfully", "updated_user": user}
     except Exception as err:
         session.rollback()
@@ -163,8 +158,6 @@ async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_
         session.commit()
         session.refresh(user)
 
-        if user.last_login_time:
-            user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "User updated successfully", "updated_user": user}
     except Exception as err:
         session.rollback()
