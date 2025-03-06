@@ -17,7 +17,6 @@ CREATE TABLE orders (
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     discount FLOAT8 DEFAULT 0.0,
     total_amount DECIMAL(10,2) NOT NULL,
-    status VARCHAR(50) DEFAULT 'pending',
     delivery_address VARCHAR(200)
 );
 
