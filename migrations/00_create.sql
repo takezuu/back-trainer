@@ -5,9 +5,7 @@ create table users (
 	full_name VARCHAR(100),
 	password VARCHAR(150),
 	ip_address VARCHAR(20),
-	last_login_time TIMESTAMP,
 	country_code VARCHAR(50),
-	balance INT,
 	can_delete boolean,
 	UNIQUE (email, phone)
 );
