@@ -1,11 +1,9 @@
 import hashlib
 from typing import List, Annotated
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlmodel import Session, select
 from src.dependencies.users import user_exists
-from src.models.orders import Orders
-from src.models.users import UserPut, UsersResponse, Users, UserAddedResponse, UserAdd, UserPatch, UserUpdatedResponse, \
-    UserResponse
+from src.models.users import UserPut, UsersResponse, Users, UserAddedResponse, UserAdd, UserPatch, UserUpdatedResponse
 from src.database import get_session
 
 SessionDep = Annotated[Session, Depends(get_session)]
@@ -58,39 +56,17 @@ async def get_users(session: SessionDep,
 
 
 @router.get("/api/users/{user_id}", tags=["users"], status_code=status.HTTP_200_OK,
-            response_model=UserResponse)
-async def get_user(session: SessionDep, user=Depends(user_exists)):
-    orders = Orders
-    query = select(orders.id)
-
-    query_completed_orders = query.where(orders.user_id == user.id, Orders.status == "delivered")
-    query_uncomleted_orders = query.where(orders.user_id == user.id, Orders.status != "delivered")
-
-    completed_orders = session.exec(query_completed_orders).all()
-    uncompleted_orders = session.exec(query_uncomleted_orders).all()
-
-    if user.last_login_time:
-        user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
-
-    user_data = {
-        "id": user.id,
-        "email": user.email,
-        "phone": user.phone,
-        "full_name": user.full_name,
-        "ip_address": user.ip_address,
-        "last_login_time": user.last_login_time,
-        "country_code": user.country_code,
-        "balance": user.balance,
-        "can_delete": user.can_delete,
-        "completed_orders": completed_orders,
-        "uncompleted_orders": uncompleted_orders
-    }
-    return user_data
+            response_model=UsersResponse)
+async def get_user(user=Depends(user_exists)):
+    return user
 
 
 @router.post("/api/users", tags=["users"], status_code=status.HTTP_201_CREATED,
              response_model=UserAddedResponse)
-async def create_user(user: UserAdd, session: SessionDep):
+async def create_user(user: UserAdd, session: SessionDep, request: Request):
+    client_ip = request.client.host
+    user.ip_address = client_ip
+
     salt = "5gz"
     user.password = user.password + salt
     user.password = hashlib.md5(user.password.encode()).hexdigest()
