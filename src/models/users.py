@@ -12,9 +12,7 @@ class Users(SQLModel, table=True):
     full_name: str = Field(index=True)
     password: str = Field(index=True)
     ip_address: str = Field(index=True)
-    last_login_time: datetime = Field(index=True)
     country_code: str = Field(index=True)
-    balance: int = Field(index=True)
     can_delete: bool = Field(index=True)
 
 
@@ -23,6 +21,7 @@ class UserAdd(SQLModel):
     email: str = Field(index=True)
     phone: str = Field(index=True)
     password: str = Field(index=True)
+    ip_address: str | None = Field(index=True, default=True)
     can_delete: bool | None = Field(index=True, default=True)
 
     @field_validator("full_name")
@@ -76,20 +75,15 @@ class UserAdd(SQLModel):
         value = True
         return value
 
+
 class UsersResponse(SQLModel):
     id: int
     email: str
     phone: str
     full_name: str
     ip_address: str | None
-    last_login_time: str | None
     country_code: str | None
-    balance: int | None
     can_delete: bool
-
-class UserResponse(UsersResponse):
-    completed_orders: list[int] | None
-    uncompleted_orders: list[int] | None
 
 
 class UserPut(SQLModel):
@@ -137,7 +131,7 @@ class UserPut(SQLModel):
             raise HTTPException(status_code=400, detail="County code should be Str type")
         if len(value) > 3:
             raise HTTPException(status_code=400, detail="County code length should be less than 3")
-        if value.isalpha():
+        if not value.isalpha():
             raise HTTPException(status_code=400, detail="County code should have only latin letters")
         return value
 
@@ -164,7 +158,8 @@ class UserPatch(SQLModel):
         full_name_pattern = re.compile(r'[A-Za-z]{1,30} [A-Za-z]{1,30}$')
         result = full_name_pattern.match(value)
         if not result:
-            raise HTTPException(status_code=400, detail="Full name must be two words with Latin letters, 5-15 characters total")
+            raise HTTPException(status_code=400,
+                                detail="Full name must be two words with Latin letters, 5-15 characters total")
         return value
 
     @field_validator("email")
@@ -194,6 +189,6 @@ class UserPatch(SQLModel):
             raise HTTPException(status_code=400, detail="County code should be Str type")
         if len(value) > 3:
             raise HTTPException(status_code=400, detail="County code length should be less than 3")
-        if value.isalpha():
+        if not value.isalpha():
             raise HTTPException(status_code=400, detail="County code should have only latin letters")
         return value
