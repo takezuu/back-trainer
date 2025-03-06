@@ -12,9 +12,7 @@ class Users(SQLModel, table=True):
     full_name: str = Field(index=True)
     password: str = Field(index=True)
     ip_address: str = Field(index=True)
-    last_login_time: datetime = Field(index=True)
     country_code: str = Field(index=True)
-    balance: int = Field(index=True)
     can_delete: bool = Field(index=True)
 
 
@@ -82,9 +80,7 @@ class UsersResponse(SQLModel):
     phone: str
     full_name: str
     ip_address: str | None
-    last_login_time: str | None
     country_code: str | None
-    balance: int | None
     can_delete: bool
 
 class UserResponse(UsersResponse):
