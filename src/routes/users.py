@@ -1,5 +1,7 @@
 import hashlib
 from typing import List, Annotated
+
+import requests
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlmodel import Session, select
 from src.dependencies.users import user_exists
@@ -48,9 +50,6 @@ async def get_users(session: SessionDep,
     query = query.offset((page - 1) * limit).limit(limit)
 
     users = session.exec(query).all()
-    for user in users:
-        if user.last_login_time:
-            user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
 
     return users
 
@@ -66,6 +65,13 @@ async def get_user(user=Depends(user_exists)):
 async def create_user(user: UserAdd, session: SessionDep, request: Request):
     client_ip = request.client.host
     user.ip_address = client_ip
+
+    try:
+        country_code = requests.get(f"https://ipinfo.io/{client_ip}/json").json()["country"]
+    except Exception:
+        country_code = "RU"
+
+    user.country_code = country_code
 
     salt = "5gz"
     user.password = user.password + salt
@@ -132,8 +138,6 @@ async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(u
         session.commit()
         session.refresh(user)
 
-        if user.last_login_time:
-            user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "User updated successfully", "updated_user": user}
     except Exception as err:
         session.rollback()
@@ -163,8 +167,6 @@ async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_
         session.commit()
         session.refresh(user)
 
-        if user.last_login_time:
-            user.last_login_time = user.last_login_time.strftime("%Y-%m-%d %H:%M:%S")
         return {"message": "User updated successfully", "updated_user": user}
     except Exception as err:
         session.rollback()
