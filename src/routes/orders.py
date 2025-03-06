@@ -16,7 +16,7 @@ router = APIRouter()
 
 @router.get("/api/orders", tags=["orders"], response_model=List[OrdersResponse])
 async def get_orders(session: SessionDep,
-                     order_date: datetime = None,
+                     order_date_time: datetime = None,
                      discount: float = None,
                      total_amount: float = None,
                      order_status: str = None,
@@ -35,8 +35,8 @@ async def get_orders(session: SessionDep,
     orders = Orders
     query = select(orders)
 
-    if order_date:
-        query = query.where(orders.order_date == order_date)
+    if order_date_time:
+        query = query.where(orders.order_date == order_date_time)
     if discount:
         query = query.where(orders.discount == discount)
     if total_amount:
