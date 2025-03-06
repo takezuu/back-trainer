@@ -30,7 +30,10 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     error_details = []
     for error in errors:
         error_type = error["type"]
-        error_location = error["loc"][1]
+        if len(error["loc"]) == 1:
+            error_location = error["loc"]
+        else:
+            error_location = error["loc"][1]
         error_message = error["msg"]
 
         if error_message == "JSON decode error":
