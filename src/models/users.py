@@ -137,7 +137,7 @@ class UserPut(SQLModel):
             raise HTTPException(status_code=400, detail="County code should be Str type")
         if len(value) > 3:
             raise HTTPException(status_code=400, detail="County code length should be less than 3")
-        if value.isalpha():
+        if not value.isalpha():
             raise HTTPException(status_code=400, detail="County code should have only latin letters")
         return value
 
@@ -194,6 +194,6 @@ class UserPatch(SQLModel):
             raise HTTPException(status_code=400, detail="County code should be Str type")
         if len(value) > 3:
             raise HTTPException(status_code=400, detail="County code length should be less than 3")
-        if value.isalpha():
+        if not value.isalpha():
             raise HTTPException(status_code=400, detail="County code should have only latin letters")
         return value
