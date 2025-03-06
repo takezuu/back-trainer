@@ -19,7 +19,6 @@ async def get_orders(session: SessionDep,
                      order_date_time: datetime = None,
                      discount: float = None,
                      total_amount: float = None,
-                     order_status: str = None,
                      delivery_address: str = None,
                      item_id: int = None,
                      sort: str = "id",
@@ -41,8 +40,6 @@ async def get_orders(session: SessionDep,
         query = query.where(orders.discount == discount)
     if total_amount:
         query = query.where(orders.total_amount == total_amount)
-    if order_status:
-        query = query.where(orders.status == order_status)
     if delivery_address:
         query = query.where(orders.delivery_address == delivery_address)
     if item_id:
