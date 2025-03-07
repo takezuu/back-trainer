@@ -1,5 +1,7 @@
 import hashlib
 from typing import List, Annotated
+
+import requests
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlmodel import Session, select
 from src.dependencies.users import user_exists
@@ -63,6 +65,13 @@ async def get_user(user=Depends(user_exists)):
 async def create_user(user: UserAdd, session: SessionDep, request: Request):
     client_ip = request.client.host
     user.ip_address = client_ip
+
+    try:
+        country_code = requests.get(f"https://ipinfo.io/{client_ip}/json").json()["country"]
+    except Exception:
+        country_code = "RU"
+
+    user.country_code = country_code
 
     salt = "5gz"
     user.password = user.password + salt
