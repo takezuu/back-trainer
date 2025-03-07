@@ -55,8 +55,8 @@ class ItemAdd(SQLModel):
     def validate_quantity(cls, value: int):
         if not isinstance(value, int):
             raise HTTPException(status_code=400, detail="Quantity should be Int type")
-        if value < 1 or value > 1000:
-            raise HTTPException(status_code=400, detail="Quantity should be more than 1 and less than 1000")
+        if value < 0 or value > 1000:
+            raise HTTPException(status_code=400, detail="Quantity should be more than 0 and less than 1000")
         return value
 
     @field_validator("category")
@@ -130,15 +130,15 @@ class ItemsPatch(SQLModel):
     def validate_quantity(cls, value: int):
         if not isinstance(value, int):
             raise HTTPException(status_code=400, detail="Quantity should be Int type")
-        if value < 1 or value > 1000:
-            raise HTTPException(status_code=400, detail="Quantity should be more than 1 and less than 1000")
+        if value < 0 or value > 1000:
+            raise HTTPException(status_code=400, detail="Quantity should be more than 0 and less than 1000")
         return value
 
     @field_validator("category")
     def validate_category(cls, value: str):
         if not isinstance(value, str):
             raise HTTPException(status_code=400, detail="Category should be Str type")
-        if len(value) < 1 or len(value) > 100:
+        if len(value) < 0 or len(value) > 100:
             raise HTTPException(status_code=400, detail="Category length should be from 1 to 100 characters")
         if not value.isalpha():
             raise HTTPException(status_code=400, detail="Category consists from letters only")
@@ -200,8 +200,8 @@ class ItemsPut(SQLModel):
     def validate_quantity(cls, value: int):
         if not isinstance(value, int):
             raise HTTPException(status_code=400, detail="Quantity should be Int type")
-        if value < 1 or value > 1000:
-            raise HTTPException(status_code=400, detail="Quantity should be more than 1 and less than 1000")
+        if value < 0 or value > 1000:
+            raise HTTPException(status_code=400, detail="Quantity should be more than 0 and less than 1000")
         return value
 
     @field_validator("category")
