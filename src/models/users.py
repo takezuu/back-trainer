@@ -22,6 +22,7 @@ class UserAdd(SQLModel):
     phone: str = Field(index=True)
     password: str = Field(index=True)
     ip_address: str | None = Field(index=True, default=True)
+    country_code: str | None = Field(index=True)
     can_delete: bool | None = Field(index=True, default=True)
 
     @field_validator("full_name")
