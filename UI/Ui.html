@@ -105,7 +105,22 @@
             text-align: center;
         }
 
+        .swagger-btn {
+            width: 150px;
+            padding: 10px;
+            background: #2e2e2e;
+            color: #ffffff;
+            border: 1px solid #555;
+            cursor: pointer;
+            transition: background 0.3s; /* Оставлена анимация */
+            text-align: center;
+        }
+
             .about-btn:hover {
+                background: #444; /* Серый фон при наведении */
+            }
+
+            .swagger-btn:hover {
                 background: #444; /* Серый фон при наведении */
             }
 
@@ -199,7 +214,10 @@
     <div class="container">
         <div class="header-group">
             <h1>REST API Trainer</h1>
+            <div>
+            <button class="swagger-btn" onclick="window.location.href='http://aapi.pro/docs'">Swagger</button>
             <button class="about-btn" onclick="window.location.href='/about'">About</button>
+            </div>
         </div>
         <div class="form-group">
             <div class="input-container">
