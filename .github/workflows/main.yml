@@ -23,6 +23,7 @@ jobs:
       # Step 3: Deploy using SSH (change the server details and path to your application)
       - name: Deploy to server
         run: |
+          echo you
           mkdir HIMAN
           ssh -o StrictHostKeyChecking=no root@89.22.228.122 'sudo bash /root/deploy2.sh'
         env:
