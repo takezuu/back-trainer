@@ -3,18 +3,15 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - main # Trigger deployment on push to the 'main' branch
+      - main  # Or your target branch (e.g., "master", "dev")
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      # Step 2: Set up SSH key for deployment (make sure to store the private key in GitHub secrets)
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
@@ -22,9 +19,6 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H 89.22.228.122 >> ~/.ssh/known_hosts
 
-      # Step 3: Deploy using SSH (change the server details and path to your application)
       - name: Deploy to server
         run: |
-          ssh root@89.22.228.122 'sudo bash /root/deploy2.sh'
-        env:
-          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh -i ~/.ssh/id_ed25519 root@89.22.228.122 'sudo bash /root/deploy2.sh'
