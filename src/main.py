@@ -15,12 +15,12 @@ async def favicon():
 
 
 @app.get("/")
-def root():
+async def root():
     return FileResponse("UI/Ui.html")
 
 
 @app.get("/about")
-def root():
+async def root():
     return FileResponse("UI/about.html")
 
 
