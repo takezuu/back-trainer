@@ -1,0 +1,28 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main # Trigger deployment on push to the 'main' branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up SSH key for deployment (make sure to store the private key in GitHub secrets)
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.6.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Step 3: Deploy using SSH (change the server details and path to your application)
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no root@89.22.228.122 'sudo bash /root/deploy2.sh'
+        env:
+          PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
