@@ -73,7 +73,7 @@ async def get_item(item=Depends(item_exists)):
 
 @router.post("/api/items", tags=["items"], status_code=status.HTTP_201_CREATED,
              response_model=ItemAddedResponse)
-async def create_user(item: ItemAdd, session: SessionDep):
+async def create_item(item: ItemAdd, session: SessionDep):
     db_item = Items(**item.model_dump())
 
     if db_item.product_name:
