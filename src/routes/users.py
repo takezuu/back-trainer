@@ -119,15 +119,15 @@ async def delete_user(session: SessionDep, user=Depends(user_exists)):
 async def patch_user(session: SessionDep, update_data: UserPatch, user=Depends(user_exists)):
     try:
         if update_data.phone:
-            query = select(Users).where(Users.phone == update_data.phone)
-            phone_exists = session.exec(query).first() is not None
-            if phone_exists:
+            query = select(Users.id).where(Users.phone == update_data.phone)
+            user_id = session.exec(query).first()
+            if user_id != user.id:
                 raise HTTPException(status_code=409, detail="Phone is already use")
 
         if update_data.email:
-            query = select(Users).where(Users.email == update_data.email)
-            email_exists = session.exec(query).first() is not None
-            if email_exists:
+            query = select(Users.id).where(Users.email == update_data.email)
+            user_id = session.exec(query).first()
+            if user_id != user.id:
                 raise HTTPException(status_code=409, detail="Email is already use")
 
         for key, value in update_data.model_dump(exclude_unset=True).items():
@@ -150,14 +150,14 @@ async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_
     try:
         if update_data.phone:
             query = select(Users).where(Users.phone == update_data.phone)
-            phone_exists = session.exec(query).first() is not None
-            if phone_exists:
+            user_id = session.exec(query).first() is not None
+            if user_id != user.id:
                 raise HTTPException(status_code=409, detail="Phone is already use")
 
         if update_data.email:
             query = select(Users).where(Users.email == update_data.email)
-            email_exists = session.exec(query).first() is not None
-            if email_exists:
+            user_id = session.exec(query).first() is not None
+            if user_id != user.id:
                 raise HTTPException(status_code=409, detail="Email is already use")
 
         for key, value in update_data.model_dump(exclude_unset=True).items():

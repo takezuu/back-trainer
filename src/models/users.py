@@ -21,7 +21,7 @@ class UserAdd(SQLModel):
     email: str = Field(index=True)
     phone: str = Field(index=True)
     password: str = Field(index=True)
-    ip_address: str | None = Field(index=True, default=True)
+    ip_address: str | None = Field(index=True, default="")
     country_code: str | None = Field(index=True)
     can_delete: bool | None = Field(index=True, default=True)
 
