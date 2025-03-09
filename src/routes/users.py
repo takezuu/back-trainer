@@ -151,13 +151,13 @@ async def put_user(session: SessionDep, update_data: UserPut, user=Depends(user_
         if update_data.phone:
             query = select(Users).where(Users.phone == update_data.phone)
             user_id = session.exec(query).first() is not None
-            if user_id != user.id:
+            if user_id != user.id and user_id is True:
                 raise HTTPException(status_code=409, detail="Phone is already use")
 
         if update_data.email:
             query = select(Users).where(Users.email == update_data.email)
             user_id = session.exec(query).first() is not None
-            if user_id != user.id:
+            if user_id != user.id and user_id is True:
                 raise HTTPException(status_code=409, detail="Email is already use")
 
         for key, value in update_data.model_dump(exclude_unset=True).items():
